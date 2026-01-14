@@ -360,7 +360,7 @@ export class AiInfraRepos {
         .where(
           and(
             eq(protochatModels.enabled, true),
-            eq(protochatProviders.enabled, true), // ✅ 只返回启用的子供应商的模型
+            eq(protochatProviders.enabled, true), // ✅ Only return models from enabled sub-providers
           ),
         );
 
