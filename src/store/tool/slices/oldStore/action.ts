@@ -56,10 +56,10 @@ export const createPluginStoreSlice: StateCreator<
     const { updateInstallLoadingState, refreshPlugins, updatePluginInstallProgress } = get();
 
     try {
-      // 开始安装流程
+      // Start installation process
       updateInstallLoadingState(name, true);
 
-      // 步骤 1: 获取插件清单
+      // Step 1: Fetch plugin manifest
       updatePluginInstallProgress(name, {
         progress: 25,
         step: PluginInstallStep.FETCHING_MANIFEST,
@@ -67,7 +67,7 @@ export const createPluginStoreSlice: StateCreator<
 
       const data = await toolService.getToolManifest(plugin.manifest);
 
-      // 步骤 2: 安装插件
+      // Step 2: Install plugin
       updatePluginInstallProgress(name, {
         progress: 60,
         step: PluginInstallStep.INSTALLING_PLUGIN,
@@ -82,13 +82,13 @@ export const createPluginStoreSlice: StateCreator<
 
       await refreshPlugins();
 
-      // 步骤 4: 完成安装
+      // Step 4: Complete installation
       updatePluginInstallProgress(name, {
         progress: 100,
         step: PluginInstallStep.COMPLETED,
       });
 
-      // 短暂显示完成状态后清除进度
+      // Clear progress after briefly showing completion status
       await sleep(1000);
 
       updatePluginInstallProgress(name, undefined);

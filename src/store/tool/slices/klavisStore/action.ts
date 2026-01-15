@@ -25,37 +25,37 @@ const n = setNamespace('klavisStore');
  */
 export interface KlavisStoreAction {
   /**
-   * 调用 Klavis 工具
+   * Call Klavis tool
    */
   callKlavisTool: (params: CallKlavisToolParams) => Promise<CallKlavisToolResult>;
 
   /**
-   * 完成 OAuth 认证后，更新服务器状态
-   * @param identifier - 服务器标识符 (e.g., 'google-calendar')
+   * Update server status after completing OAuth authentication
+   * @param identifier - Server identifier (e.g., 'google-calendar')
    */
   completeKlavisServerAuth: (identifier: string) => Promise<void>;
 
   /**
-   * 创建单个 Klavis MCP Server 实例
-   * @returns 创建的服务器实例，如果需要 OAuth 则返回带 oauthUrl 的对象
+   * Create a single Klavis MCP Server instance
+   * @returns Created server instance, returns object with oauthUrl if OAuth is required
    */
   createKlavisServer: (params: CreateKlavisServerParams) => Promise<KlavisServer | undefined>;
 
   /**
-   * 刷新 Klavis Server 的工具列表
-   * @param identifier - 服务器标识符 (e.g., 'google-calendar')
+   * Refresh Klavis Server's tool list
+   * @param identifier - Server identifier (e.g., 'google-calendar')
    */
   refreshKlavisServerTools: (identifier: string) => Promise<void>;
 
   /**
-   * 删除 Klavis Server
-   * @param identifier - 服务器标识符 (e.g., 'google-calendar')
+   * Remove Klavis Server
+   * @param identifier - Server identifier (e.g., 'google-calendar')
    */
   removeKlavisServer: (identifier: string) => Promise<void>;
 
   /**
-   * 使用 SWR 获取用户的 Klavis 服务器列表
-   * @param enabled - 是否启用获取
+   * Fetch user's Klavis server list using SWR
+   * @param enabled - Whether to enable fetching
    */
   useFetchUserKlavisServers: (enabled: boolean) => SWRResponse<KlavisServer[]>;
 }
@@ -80,7 +80,7 @@ export const createKlavisStoreSlice: StateCreator<
     );
 
     try {
-      // 调用 tRPC 服务端接口执行工具（使用 toolsClient 以获得更长的超时时间）
+      // Call tRPC server endpoint to execute tool (use toolsClient for longer timeout)
       const response = await toolsClient.klavis.callTool.mutate({
         serverUrl,
         toolArgs,
@@ -117,7 +117,7 @@ export const createKlavisStoreSlice: StateCreator<
   },
 
   completeKlavisServerAuth: async (identifier) => {
-    // OAuth 完成后，刷新工具列表
+    // After OAuth completion, refresh tool list
     await get().refreshKlavisServerTools(identifier);
   },
 
@@ -133,14 +133,14 @@ export const createKlavisStoreSlice: StateCreator<
     );
 
     try {
-      // 调用 tRPC 服务端接口创建单个服务器实例
+      // Call tRPC server endpoint to create single server instance
       const response = await lambdaClient.klavis.createServerInstance.mutate({
         identifier,
         serverName,
         userId,
       });
 
-      // 构建服务器对象
+      // Build server object
       const server: KlavisServer = {
         createdAt: Date.now(),
         identifier: response.identifier,

@@ -114,7 +114,7 @@ export const chatTopic: StateCreator<
 
     const { activeId, activeSessionType, summaryTopicTitle, internal_createTopic } = get();
 
-    // 1. create topic and bind these messages
+    // 1. Create topic and bind these messages
     const topicId = await internal_createTopic({
       title: t('defaultTitle', { ns: 'topic' }),
       messages: messages.map((m) => m.id),
