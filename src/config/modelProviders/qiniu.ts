@@ -4,7 +4,7 @@ import { ModelProviderCard } from '@/types/llm';
 const Qiniu: ModelProviderCard = {
   chatModels: [],
   checkModel: 'deepseek-r1',
-  description: '七牛作为老牌云服务厂商，提供高性价比稳定的实时、批量 AI 推理服务，简单易用。',
+  description: 'Qiniu, as an established cloud service provider, offers cost-effective and stable real-time and batch AI inference services that are simple and easy to use.',
   id: 'qiniu',
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://developer.qiniu.com/aitokenapi/12882/ai-inference-api',

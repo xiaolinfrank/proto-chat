@@ -5,7 +5,7 @@ const Novita: ModelProviderCard = {
   chatModels: [],
   checkModel: 'meta-llama/llama-3.1-8b-instruct',
   description:
-    'Novita AI 是一个提供多种大语言模型与 AI 图像生成的 API 服务的平台，灵活、可靠且具有成本效益。它支持 Llama3、Mistral 等最新的开源模型，并为生成式 AI 应用开发提供了全面、用户友好且自动扩展的 API 解决方案，适合 AI 初创公司的快速发展。',
+    'Novita AI is a platform providing API services for various large language models and AI image generation, offering flexibility, reliability, and cost-effectiveness. It supports the latest open-source models such as Llama3 and Mistral, providing comprehensive, user-friendly, and auto-scaling API solutions for generative AI application development, ideal for the rapid growth of AI startups.',
   disableBrowserRequest: true,
   id: 'novita',
   modelList: { showModelFetcher: true },

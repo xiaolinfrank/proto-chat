@@ -1,14 +1,14 @@
 import { ModelProviderCard } from '@/types/llm';
 
-// ref: https://platform.lingyiwanwu.com/docs#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E8%AE%A1%E8%B4%B9
+// ref: https://platform.lingyiwanwu.com/docs#models-and-pricing
 const ZeroOne: ModelProviderCard = {
   chatModels: [],
   checkModel: 'yi-lightning',
   description:
-    '零一万物致力于推动以人为本的AI 2.0技术革命，旨在通过大语言模型创造巨大的经济和社会价值，并开创新的AI生态与商业模式。',
+    '01.AI is committed to advancing the human-centric AI 2.0 technological revolution, aiming to create significant economic and social value through large language models and pioneer new AI ecosystems and business models.',
   id: 'zeroone',
   modelList: { showModelFetcher: true },
-  modelsUrl: 'https://platform.lingyiwanwu.com/docs#模型与计费',
+  modelsUrl: 'https://platform.lingyiwanwu.com/docs#models-and-pricing',
   name: '01.AI',
   settings: {
     proxyUrl: {

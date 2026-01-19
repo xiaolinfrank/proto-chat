@@ -5,7 +5,7 @@ const Ai302: ModelProviderCard = {
   apiKeyUrl: 'https://lobe.li/Oizw5sN',
   chatModels: [],
   checkModel: 'gpt-4o',
-  description: '302.AI 是一个按需付费的 AI 应用平台，提供市面上最全的 AI API 和 AI 在线应用',
+  description: '302.AI is a pay-as-you-go AI application platform, providing the most comprehensive AI APIs and online AI applications available on the market',
   id: 'ai302',
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://302.ai/pricing/',

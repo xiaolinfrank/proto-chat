@@ -1,12 +1,12 @@
 import { ModelProviderCard } from '@/types/llm';
 
 // ref: https://platform.stepfun.com/docs/llm/text
-// 根据文档，阶级星辰大模型的上下文长度，其 k 的含义均为 1000
+// According to the documentation, for the Stepfun large model's context length, 'k' means 1000
 const Stepfun: ModelProviderCard = {
   chatModels: [],
   checkModel: 'step-2-mini',
   description:
-    '阶级星辰大模型具备行业领先的多模态及复杂推理能力，支持超长文本理解和强大的自主调度搜索引擎功能。',
+    'The Stepfun large model features industry-leading multimodal and complex reasoning capabilities, supporting ultra-long text understanding and powerful autonomous search engine scheduling.',
   // after test, currently https://api.stepfun.com/v1/chat/completions has the CORS issue
   // So we should close the browser request mode
   disableBrowserRequest: true,

@@ -1,11 +1,11 @@
 import { ModelProviderCard } from '@/types/llm';
 
-// ref: https://platform.moonshot.cn/docs/intro#模型列表
+// ref: https://platform.moonshot.cn/docs/intro#model-list
 const Moonshot: ModelProviderCard = {
   chatModels: [],
   checkModel: 'kimi-latest',
   description:
-    'Moonshot 是由北京月之暗面科技有限公司推出的开源平台，提供多种自然语言处理模型，应用领域广泛，包括但不限于内容创作、学术研究、智能推荐、医疗诊断等，支持长文本处理和复杂生成任务。',
+    'Moonshot is an open-source platform launched by Beijing Dark Side of the Moon Technology Co., Ltd., providing various natural language processing models with wide-ranging applications including but not limited to content creation, academic research, intelligent recommendations, medical diagnosis, and more. It supports long-text processing and complex generation tasks.',
   id: 'moonshot',
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://platform.moonshot.cn/docs/intro',

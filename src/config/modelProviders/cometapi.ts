@@ -5,7 +5,7 @@ const CometAPI: ModelProviderCard = {
   chatModels: [],
   checkModel: 'gpt-5-mini',
   description:
-    'CometAPI 是一个提供多种前沿大模型接口的服务平台，支持 OpenAI、Anthropic、Google 及更多，适合多样化的开发和应用需求。用户可根据自身需求灵活选择最优的模型和价格，助力AI体验的提升。',
+    'CometAPI is a service platform providing various cutting-edge large model interfaces, supporting OpenAI, Anthropic, Google, and more, suitable for diverse development and application needs. Users can flexibly choose optimal models and pricing based on their requirements, enhancing the AI experience.',
   enabled: true,
   id: 'cometapi',
   modelList: { showModelFetcher: true },
