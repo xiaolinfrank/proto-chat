@@ -4,21 +4,21 @@ const Higress: ModelProviderCard = {
   chatModels: [],
   checkModel: 'qwen-max',
   description:
-    'Higress 是一款云原生 API 网关，在阿里内部为解决 Tengine reload 对长连接业务有损，以及 gRPC/Dubbo 负载均衡能力不足而诞生。',
+    'Higress is a cloud-native API gateway, created within Alibaba to address issues with Tengine reload damaging long-connection services and insufficient gRPC/Dubbo load balancing capabilities.',
   id: 'higress',
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://higress.cn/',
   name: 'Higress',
   proxyUrl: {
-    desc: '输入Higress AI Gateway的访问地址',
+    desc: 'Enter the Higress AI Gateway access address',
     placeholder: 'https://127.0.0.1:8080/v1',
-    title: 'AI Gateway地址',
+    title: 'AI Gateway Address',
   },
   settings: {
     proxyUrl: {
-      desc: '输入Higress AI Gateway的访问地址',
+      desc: 'Enter the Higress AI Gateway access address',
       placeholder: 'https://127.0.0.1:8080/v1',
-      title: 'AI Gateway地址',
+      title: 'AI Gateway Address',
     },
     sdkType: 'openai',
     showModelFetcher: true,

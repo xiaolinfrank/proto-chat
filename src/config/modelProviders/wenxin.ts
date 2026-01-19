@@ -4,7 +4,7 @@ const BaiduWenxin: ModelProviderCard = {
   chatModels: [],
   checkModel: 'ernie-4.5-turbo-latest',
   description:
-    '企业级一站式大模型与AI原生应用开发及服务平台，提供最全面易用的生成式人工智能模型开发、应用开发全流程工具链',
+    'Enterprise-level one-stop platform for large-scale models and AI-native application development and services, providing the most comprehensive and user-friendly full-process toolchain for generative AI model development and application development',
   id: 'wenxin',
   modelsUrl: 'https://console.bce.baidu.com/qianfan/modelcenter/model/buildIn/list',
   name: 'Wenxin',

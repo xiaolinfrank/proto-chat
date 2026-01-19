@@ -5,7 +5,7 @@ const Doubao: ModelProviderCard = {
   chatModels: [],
   checkModel: 'doubao-seed-1-6-flash-250828',
   description:
-    '字节跳动推出的大模型服务的开发平台，提供功能丰富、安全以及具备价格竞争力的模型调用服务，同时提供模型数据、精调、推理、评测等端到端功能，全方位保障您的 AI 应用开发落地。',
+    'A large model service development platform launched by ByteDance, providing feature-rich, secure, and competitively priced model invocation services, along with end-to-end capabilities including model data, fine-tuning, inference, and evaluation, ensuring comprehensive support for your AI application development and deployment.',
   id: 'volcengine',
   modelsUrl: 'https://www.volcengine.com/docs/82379/1330310',
   name: 'Volcengine',

@@ -4,7 +4,7 @@ const PPIO: ModelProviderCard = {
   chatModels: [],
   checkModel: 'deepseek/deepseek-r1-distill-qwen-32b',
   description:
-    'PPIO 派欧云提供稳定、高性价比的开源模型 API 服务，支持 DeepSeek 全系列、Llama、Qwen 等行业领先大模型。',
+    'PPIO Cloud provides stable, cost-effective open-source model API services, supporting industry-leading large models such as the full DeepSeek series, Llama, Qwen, and more.',
   disableBrowserRequest: true,
   id: 'ppio',
   modelList: { showModelFetcher: true },

@@ -5,7 +5,7 @@ const Baichuan: ModelProviderCard = {
   chatModels: [],
   checkModel: 'Baichuan3-Turbo',
   description:
-    '百川智能是一家专注于人工智能大模型研发的公司，其模型在国内知识百科、长文本处理和生成创作等中文任务上表现卓越，超越了国外主流模型。百川智能还具备行业领先的多模态能力，在多项权威评测中表现优异。其模型包括 Baichuan 4、Baichuan 3 Turbo 和 Baichuan 3 Turbo 128k 等，分别针对不同应用场景进行优化，提供高性价比的解决方案。',
+    'Baichuan Intelligence is a company focused on developing large-scale AI models. Its models excel in Chinese tasks such as knowledge encyclopedias, long-text processing, and content generation, surpassing mainstream foreign models. Baichuan Intelligence also possesses industry-leading multimodal capabilities and performs exceptionally well in multiple authoritative evaluations. Its models include Baichuan 4, Baichuan 3 Turbo, and Baichuan 3 Turbo 128k, each optimized for different application scenarios, providing cost-effective solutions.',
   id: 'baichuan',
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://platform.baichuan-ai.com/price',

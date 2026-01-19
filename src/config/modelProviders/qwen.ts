@@ -5,7 +5,7 @@ const Qwen: ModelProviderCard = {
   chatModels: [],
   checkModel: 'qwen-flash',
   description:
-    '通义千问是阿里云自主研发的超大规模语言模型，具有强大的自然语言理解和生成能力。它可以回答各种问题、创作文字内容、表达观点看法、撰写代码等，在多个领域发挥作用。',
+    'Tongyi Qianwen is a large-scale language model independently developed by Alibaba Cloud, with powerful natural language understanding and generation capabilities. It can answer various questions, create written content, express viewpoints, write code, and more, playing roles across multiple domains.',
   disableBrowserRequest: true,
   id: 'qwen',
   modelList: { showModelFetcher: true },
