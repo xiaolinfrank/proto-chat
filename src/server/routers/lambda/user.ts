@@ -135,7 +135,7 @@ export const userRouter = router({
 
       fullName: state.fullName,
 
-      // 有消息，或者创建过助手，则认为有 conversation
+      // If there are messages or assistants have been created, consider it has conversation
       hasConversation: hasAnyMessages || hasExtraSession,
       // always return true for community version
       isOnboard: state.isOnboarded || true,
@@ -164,19 +164,19 @@ export const userRouter = router({
     await ctx.nextAuthUserService.unlinkAccount({ provider, providerAccountId });
   }),
 
-  // 服务端上传头像
+  // Server-side avatar upload
   updateAvatar: userProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-    // 如果是 Base64 数据，需要上传到 S3
+    // If it's Base64 data, need to upload to S3
     if (input.startsWith('data:image')) {
       try {
-        // 提取 mimeType，例如 "image/png"
+        // Extract mimeType, e.g. "image/png"
         const prefix = 'data:';
         const semicolonIndex = input.indexOf(';');
         const mimeType =
           semicolonIndex !== -1 ? input.slice(prefix.length, semicolonIndex) : 'image/png';
         const fileType = mimeType.split('/')[1];
 
-        // 分割字符串，获取 Base64 部分
+        // Split the string to get the Base64 part
         const commaIndex = input.indexOf(',');
         if (commaIndex === -1) {
           throw new Error('Invalid Base64 data');
