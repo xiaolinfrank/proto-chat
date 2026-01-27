@@ -636,6 +636,356 @@ describe('InterventionChecker', () => {
     });
   });
 
+  describe('Edge cases and additional scenarios', () => {
+    describe('matchPattern edge cases', () => {
+      it('should handle multiple wildcards in pattern', () => {
+        expect(InterventionChecker['matchPattern']('*.test.*', 'file.test.ts')).toBe(true);
+        expect(InterventionChecker['matchPattern']('*/*/*.ts', 'src/utils/helper.ts')).toBe(true);
+        expect(InterventionChecker['matchPattern']('*Test*', 'myTestFile')).toBe(true);
+      });
+
+      it('should handle special regex characters in pattern', () => {
+        expect(InterventionChecker['matchPattern']('file.ts', 'file.ts')).toBe(true);
+        expect(InterventionChecker['matchPattern']('file.ts', 'filets')).toBe(false);
+        expect(InterventionChecker['matchPattern']('file[1-3].ts', 'file[1-3].ts')).toBe(true);
+        expect(InterventionChecker['matchPattern']('(test)', '(test)')).toBe(true);
+      });
+
+      it('should handle empty and single character patterns', () => {
+        expect(InterventionChecker['matchPattern']('', '')).toBe(true);
+        expect(InterventionChecker['matchPattern']('*', 'anything')).toBe(true);
+        expect(InterventionChecker['matchPattern']('a', 'a')).toBe(true);
+        expect(InterventionChecker['matchPattern']('a', 'b')).toBe(false);
+      });
+
+      it('should handle patterns with no wildcard', () => {
+        expect(InterventionChecker['matchPattern']('exact-match', 'exact-match')).toBe(true);
+        expect(InterventionChecker['matchPattern']('exact-match', 'exact-match-not')).toBe(false);
+      });
+
+      it('should handle complex colon patterns', () => {
+        expect(InterventionChecker['matchPattern']('npm install:*', 'npm install:')).toBe(true);
+        expect(InterventionChecker['matchPattern']('npm install:*', 'npm install:--save')).toBe(
+          true,
+        );
+        expect(InterventionChecker['matchPattern']('docker run:*', 'docker run')).toBe(true);
+        expect(InterventionChecker['matchPattern']('docker run:*', 'docker exec')).toBe(false);
+      });
+    });
+
+    describe('matchesArgument edge cases', () => {
+      it('should convert non-string values to strings', () => {
+        expect(InterventionChecker['matchesArgument']('123', 123)).toBe(true);
+        expect(InterventionChecker['matchesArgument']('true', true)).toBe(true);
+        expect(InterventionChecker['matchesArgument']('null', null)).toBe(true);
+      });
+
+      it('should handle matcher with unknown type', () => {
+        const matcher = { pattern: 'test', type: 'invalid' as any };
+        expect(InterventionChecker['matchesArgument'](matcher, 'test')).toBe(false);
+      });
+
+      it('should handle regex patterns with special flags', () => {
+        const matcher = { pattern: '^[A-Z]+$', type: 'regex' as const };
+        expect(InterventionChecker['matchesArgument'](matcher, 'ABC')).toBe(true);
+        expect(InterventionChecker['matchesArgument'](matcher, 'abc')).toBe(false);
+        expect(InterventionChecker['matchesArgument'](matcher, '123')).toBe(false);
+      });
+
+      it('should handle complex wildcard patterns', () => {
+        const matcher = { pattern: '/usr/*/bin/*', type: 'wildcard' as const };
+        expect(InterventionChecker['matchesArgument'](matcher, '/usr/local/bin/node')).toBe(true);
+        expect(InterventionChecker['matchesArgument'](matcher, '/usr/bin/node')).toBe(false);
+      });
+    });
+
+    describe('checkSecurityBlacklist edge cases', () => {
+      it('should handle blacklist with no match criteria', () => {
+        const blacklist: SecurityBlacklistConfig = [
+          {
+            description: 'Invalid rule without match',
+            match: undefined as any,
+          },
+        ];
+
+        const result = InterventionChecker.checkSecurityBlacklist(blacklist, {
+          command: 'anything',
+        });
+        expect(result.blocked).toBe(false);
+      });
+
+      it('should handle empty match object', () => {
+        const blacklist: SecurityBlacklistConfig = [
+          {
+            description: 'Rule with empty match',
+            match: {},
+          },
+        ];
+
+        const result = InterventionChecker.checkSecurityBlacklist(blacklist, {
+          command: 'anything',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should handle multiple rules with first match wins', () => {
+        const blacklist: SecurityBlacklistConfig = [
+          {
+            description: 'First rule',
+            match: { command: { pattern: 'rm.*', type: 'regex' } },
+          },
+          {
+            description: 'Second rule',
+            match: { command: { pattern: 'rm.*', type: 'regex' } },
+          },
+        ];
+
+        const result = InterventionChecker.checkSecurityBlacklist(blacklist, {
+          command: 'rm -rf',
+        });
+        expect(result.blocked).toBe(true);
+        expect(result.reason).toBe('First rule');
+      });
+
+      it('should handle toolArgs with extra parameters not in match', () => {
+        const blacklist: SecurityBlacklistConfig = [
+          {
+            description: 'Only checks command',
+            match: { command: { pattern: 'rm.*', type: 'regex' } },
+          },
+        ];
+
+        const result = InterventionChecker.checkSecurityBlacklist(blacklist, {
+          command: 'rm -rf',
+          path: '/tmp',
+          extraParam: 'ignored',
+        });
+        expect(result.blocked).toBe(true);
+      });
+    });
+
+    describe('shouldIntervene edge cases', () => {
+      it('should handle empty array config', () => {
+        const result = InterventionChecker.shouldIntervene({
+          config: [],
+          securityBlacklist: [],
+          toolArgs: { command: 'anything' },
+        });
+        expect(result).toBe('required');
+      });
+
+      it('should handle config with only default rule', () => {
+        const config: HumanInterventionConfig = [{ policy: 'never' }];
+
+        const result = InterventionChecker.shouldIntervene({
+          config,
+          securityBlacklist: [],
+          toolArgs: { command: 'anything' },
+        });
+        expect(result).toBe('never');
+      });
+
+      it('should prioritize security blacklist over any config', () => {
+        const configs: HumanInterventionConfig[] = [
+          'never',
+          [{ policy: 'never' }],
+          [{ match: { command: '*' }, policy: 'never' }],
+        ];
+
+        configs.forEach((config) => {
+          const result = InterventionChecker.shouldIntervene({
+            config,
+            toolArgs: { command: 'rm -rf ~/' },
+          });
+          expect(result).toBe('required');
+        });
+      });
+
+      it('should handle missing parameters in toolArgs', () => {
+        const config: HumanInterventionConfig = [
+          { match: { command: 'git add:*', path: '/project/*' }, policy: 'never' },
+          { policy: 'required' },
+        ];
+
+        // Missing path parameter
+        const result = InterventionChecker.shouldIntervene({
+          config,
+          securityBlacklist: [],
+          toolArgs: { command: 'git add:.' },
+        });
+        expect(result).toBe('required');
+      });
+    });
+
+    describe('hashArguments edge cases', () => {
+      it('should handle special characters in values', () => {
+        const args = {
+          command: 'echo "hello world"',
+          path: '/path/with/special-chars_123',
+        };
+
+        const hash = InterventionChecker.hashArguments(args);
+        expect(hash).toBeDefined();
+        expect(typeof hash).toBe('string');
+        expect(hash.length).toBeGreaterThan(0);
+      });
+
+      it('should handle numeric values', () => {
+        const args1 = { count: 42, enabled: true };
+        const args2 = { count: 42, enabled: true };
+
+        expect(InterventionChecker.hashArguments(args1)).toBe(
+          InterventionChecker.hashArguments(args2),
+        );
+      });
+
+      it('should handle arrays in arguments', () => {
+        const args1 = { files: ['a.ts', 'b.ts'], count: 2 };
+        const args2 = { files: ['a.ts', 'b.ts'], count: 2 };
+
+        expect(InterventionChecker.hashArguments(args1)).toBe(
+          InterventionChecker.hashArguments(args2),
+        );
+      });
+
+      it('should produce different hashes for different array order', () => {
+        const args1 = { files: ['a.ts', 'b.ts'] };
+        const args2 = { files: ['b.ts', 'a.ts'] };
+
+        expect(InterventionChecker.hashArguments(args1)).not.toBe(
+          InterventionChecker.hashArguments(args2),
+        );
+      });
+
+      it('should handle deeply nested structures', () => {
+        const args = {
+          config: {
+            level1: {
+              level2: {
+                level3: {
+                  value: 'deep',
+                },
+              },
+            },
+          },
+        };
+
+        const hash = InterventionChecker.hashArguments(args);
+        expect(hash).toBeDefined();
+        expect(typeof hash).toBe('string');
+      });
+
+      it('should handle null and undefined in nested objects', () => {
+        const args = {
+          value: null,
+          nested: { inner: undefined },
+        };
+
+        const hash = InterventionChecker.hashArguments(args);
+        expect(hash).toBeDefined();
+      });
+    });
+
+    describe('generateToolKey edge cases', () => {
+      it('should handle empty strings', () => {
+        const key = InterventionChecker.generateToolKey('', '');
+        expect(key).toBe('/');
+      });
+
+      it('should handle special characters in identifier and apiName', () => {
+        const key = InterventionChecker.generateToolKey('my-tool_v2', 'api.endpoint');
+        expect(key).toBe('my-tool_v2/api.endpoint');
+      });
+
+      it('should handle hash with special characters', () => {
+        const key = InterventionChecker.generateToolKey('tool', 'api', 'abc123_xyz');
+        expect(key).toBe('tool/api#abc123_xyz');
+      });
+
+      it('should handle empty hash string', () => {
+        const key = InterventionChecker.generateToolKey('tool', 'api', '');
+        expect(key).toBe('tool/api');
+      });
+    });
+
+    describe('Additional DEFAULT_SECURITY_BLACKLIST tests', () => {
+      it('should block system configuration modifications', () => {
+        const dangerousCommands = [
+          'echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers',
+          'vim /etc/passwd',
+          'nano /etc/shadow',
+        ];
+
+        dangerousCommands.forEach((cmd) => {
+          const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+            command: cmd,
+          });
+          expect(result.blocked).toBe(true);
+        });
+      });
+
+      it('should block firewall manipulation', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'ufw disable',
+        });
+        expect(result.blocked).toBe(true);
+        expect(result.reason).toBe('Disabling firewall exposes system to attacks');
+      });
+
+      it('should block package manager removals of critical packages', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'apt remove systemd',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should block kernel parameter modifications', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'echo 1 >/proc/sys/kernel/randomize_va_space',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should block SUID permission changes on shells', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'chmod 4755 /bin/bash',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should block SSH config modifications', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'vim /etc/ssh/sshd_config',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should block filesystem formatting commands', () => {
+        const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+          command: 'mkfs.ext4 /dev/sda1',
+        });
+        expect(result.blocked).toBe(true);
+      });
+
+      it('should allow safe operations on project files', () => {
+        const safeCommands = [
+          'cat package.json',
+          'ls -la',
+          'git status',
+          'npm test',
+          'rm -rf node_modules',
+        ];
+
+        safeCommands.forEach((cmd) => {
+          const result = InterventionChecker.checkSecurityBlacklist(DEFAULT_SECURITY_BLACKLIST, {
+            command: cmd,
+          });
+          expect(result.blocked).toBe(false);
+        });
+      });
+    });
+  });
+
   describe('Integration scenarios', () => {
     it('should handle Bash tool scenario', () => {
       const config: HumanInterventionConfig = [
