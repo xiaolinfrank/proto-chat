@@ -12,37 +12,37 @@ import {
 import { KeyVaultsGateKeeper } from '@/server/modules/KeyVaultsEncrypt';
 
 /**
- * ProtoChat模型映射信息
+ * ProtoChat model mapping information
  */
 export interface ProtoChatModelMapping {
-  /** 底层供应商的API Key */
+  /** Underlying provider's API Key */
   apiKey: string;
-  /** 底层供应商的Base URL */
+  /** Underlying provider's Base URL */
   baseUrl: string;
-  /** 原始模型ID，如 'openrouter::openai/gpt-4o' */
+  /** Original model ID, e.g. 'openrouter::openai/gpt-4o' */
   originalId: string;
-  /** 原始供应商ID，如 'openrouter' */
+  /** Original provider ID, e.g. 'openrouter' */
   originalProvider: string;
-  /** 模型类型: 'chat' | 'image' | 'embedding' */
+  /** Model type: 'chat' | 'image' | 'embedding' */
   type: string;
 }
 
 /**
- * ProtoChat定价信息
+ * ProtoChat pricing information
  */
 export interface ProtoChatPricing {
-  /** 是否免费 */
+  /** Whether it is free */
   isFree: boolean;
-  /** 用户价格 - 输入（积分/百万tokens） */
+  /** User price - input (credits per million tokens) */
   userInputPrice: number;
-  /** 用户价格 - 输出（积分/百万tokens） */
+  /** User price - output (credits per million tokens) */
   userOutputPrice: number;
 }
 
 /**
- * ProtoChat 服务
+ * ProtoChat Service
  *
- * 提供模型映射、定价查询、使用日志等功能
+ * Provides model mapping, pricing queries, usage logging, and other functions
  */
 export class ProtoChatService {
   private readonly db: LobeChatDatabase;
@@ -52,20 +52,20 @@ export class ProtoChatService {
   }
 
   /**
-   * 获取模型映射信息
-   * @param modelId ProtoChat模型ID，支持完整格式 'protochat::a1::gpt-4o' 或简短格式 'gpt-4o'
+   * Get model mapping information
+   * @param modelId ProtoChat model ID, supports full format 'protochat::a1::gpt-4o' or short format 'gpt-4o'
    */
   async getModelMapping(modelId: string): Promise<ProtoChatModelMapping> {
-    // 首先尝试精确匹配
+    // First try exact match
     let model = await this.db
       .select()
       .from(protochatModels)
       .where(eq(protochatModels.id, modelId))
       .limit(1);
 
-    // 如果精确匹配失败，尝试模糊匹配（支持旧格式的模型ID）
+    // If exact match fails, try fuzzy match (supports legacy model ID formats)
     if (!model.length && !modelId.startsWith('protochat::')) {
-      // 尝试匹配以该模型ID结尾的完整ID（如 'protochat::a1::gemini-2.5-flash' 匹配 'gemini-2.5-flash'）
+      // Try to match full ID ending with this model ID (e.g. 'protochat::a1::gemini-2.5-flash' matches 'gemini-2.5-flash')
       model = await this.db
         .select()
         .from(protochatModels)
@@ -88,7 +88,7 @@ export class ProtoChatService {
       throw new Error(`ProtoChat model is disabled: ${modelId}`);
     }
 
-    // 查询供应商
+    // Query provider
     const provider = await this.db
       .select()
       .from(protochatProviders)
@@ -105,7 +105,7 @@ export class ProtoChatService {
       throw new Error(`ProtoChat provider is disabled: ${modelData.originalProvider}`);
     }
 
-    // 解密API Key
+    // Decrypt API Key
     let keyVaults: any = {};
 
     if (providerData.apiKey) {
@@ -138,7 +138,7 @@ export class ProtoChatService {
     const apiKey = keyVaults.apiKey || '';
     let baseUrl = providerData.baseUrl || '';
 
-    // 优先使用 keyVaults 中的 baseUrl 或 proxyUrl
+    // Prioritize baseUrl or proxyUrl from keyVaults
     if (keyVaults.baseURL) {
       baseUrl = keyVaults.baseURL;
     } else if (keyVaults.proxyUrl) {
@@ -161,8 +161,8 @@ export class ProtoChatService {
   }
 
   /**
-   * 转换模型ID
-   * 从 'openrouter::openai/gpt-4o' 提取 'openai/gpt-4o'
+   * Convert model ID
+   * Extract 'openai/gpt-4o' from 'openrouter::openai/gpt-4o'
    */
   convertModelId(originalId: string): string {
     const parts = originalId.split('::');
@@ -170,8 +170,8 @@ export class ProtoChatService {
   }
 
   /**
-   * 获取模型定价（从 model_pricings 表读取已计算好的积分价格）
-   * @param modelId ProtoChat模型ID
+   * Get model pricing (read pre-calculated credit prices from model_pricings table)
+   * @param modelId ProtoChat model ID
    */
   async getModelPricing(modelId: string): Promise<ProtoChatPricing | null> {
     const pricing = await this.db
@@ -201,7 +201,7 @@ export class ProtoChatService {
   }
 
   /**
-   * 获取定价系数
+   * Get pricing multiplier
    */
   async getPricingMultiplier(): Promise<number> {
     const setting = await this.db
@@ -211,18 +211,18 @@ export class ProtoChatService {
       .limit(1);
 
     if (!setting.length) {
-      return 1; // 默认系数
+      return 1; // Default multiplier
     }
 
     return Number(setting[0].value);
   }
 
   /**
-   * 计算使用费用
-   * @param modelId ProtoChat模型ID
-   * @param inputTokens 输入token数
-   * @param outputTokens 输出token数
-   * @returns 总费用（积分），如果是免费模型返回0
+   * Calculate usage cost
+   * @param modelId ProtoChat model ID
+   * @param inputTokens Number of input tokens
+   * @param outputTokens Number of output tokens
+   * @returns Total cost (credits), returns 0 if it's a free model
    */
   async calculateCost(
     modelId: string,
@@ -240,7 +240,7 @@ export class ProtoChatService {
       return { cost: 0, isFree: true };
     }
 
-    // 计算费用：(tokens / 1,000,000) * price_per_million
+    // Calculate cost: (tokens / 1,000,000) * price_per_million
     const inputCost = (inputTokens / 1_000_000) * pricing.userInputPrice;
     const outputCost = (outputTokens / 1_000_000) * pricing.userOutputPrice;
     const totalCost = Math.ceil(inputCost + outputCost);
@@ -249,7 +249,7 @@ export class ProtoChatService {
   }
 
   /**
-   * 记录使用日志
+   * Log usage
    */
   async logUsage(params: {
     costPrice?: number;
@@ -275,8 +275,8 @@ export class ProtoChatService {
   }
 
   /**
-   * 获取所有启用的ProtoChat模型列表
-   * 用于主项目获取模型列表
+   * Get all enabled ProtoChat models list
+   * Used for the main project to retrieve model list
    */
   async getEnabledModels(): Promise<
     Array<{
@@ -308,7 +308,7 @@ export class ProtoChatService {
   }
 
   /**
-   * 获取所有启用的底层供应商
+   * Get all enabled underlying providers
    */
   async getEnabledProviders(): Promise<
     Array<{
@@ -333,7 +333,7 @@ export class ProtoChatService {
   }
 
   /**
-   * 检查是否为ProtoChat供应商
+   * Check if it is a ProtoChat provider
    */
   static isProtoChatProvider(providerId: string): boolean {
     return providerId === 'protochat' || providerId === 'ProtoChat';
