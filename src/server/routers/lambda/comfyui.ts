@@ -15,7 +15,7 @@ import { UserUsageService } from '@/server/services/user/usageService';
 // Other RuntimeImageGenParams fields are passed through automatically
 const ComfyUIParamsSchema = z
   .object({
-    prompt: z.string(), // 只验证必需字段
+    prompt: z.string(), // Only validate required fields
   })
   .passthrough();
 
