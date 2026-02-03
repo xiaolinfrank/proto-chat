@@ -104,7 +104,7 @@ getCurrentPlan: authedSubscriptionProcedure.query(async ({ ctx }) => {
           durationMonths: user.durationMonths,
           features: plan[0].features,
           nextCreditGrantAt: user.nextCreditGrantAt,
-          paidAmount, // 实付金额（分）
+          paidAmount, // Actual paid amount (in cents)
           planExpiresAt: user.planExpiresAt,
           planId: user.planId,
           planName: plan[0].name,
