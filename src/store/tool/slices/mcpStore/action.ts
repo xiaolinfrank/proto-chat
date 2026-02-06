@@ -67,7 +67,6 @@ const toNonEmptyStringRecord = (input?: Record<string, any>) => {
 
 /**
  * Build manifest for cloud MCP connection from market data
- * 从市场数据构建 Cloud MCP 的 manifest
  */
 const buildCloudMcpManifest = (params: {
   data: any;
@@ -77,21 +76,21 @@ const buildCloudMcpManifest = (params: {
 
   log('Using cloud connection, building manifest from market data');
 
-  // 从 data 中获取 tools（MCP 格式）或 api（LobeChat 格式）
+  // Get tools (MCP format) or api (LobeChat format) from data
   const mcpTools = data.tools;
   const lobeChatApi = data.api;
 
-  // 如果是 MCP 格式的 tools，需要转换为 LobeChat 的 api 格式
+  // If it's MCP format tools, need to convert to LobeChat api format
   // MCP: { name, description, inputSchema }
   // LobeChat: { name, description, parameters }
   let apiArray: any[] = [];
 
   if (lobeChatApi) {
-    // 已经是 LobeChat 格式，直接使用
+    // Already in LobeChat format, use directly
     apiArray = lobeChatApi;
     log('[Cloud MCP] Using existing LobeChat API format');
   } else if (mcpTools && Array.isArray(mcpTools)) {
-    // 转换 MCP tools 格式到 LobeChat api 格式
+    // Convert MCP tools format to LobeChat api format
     apiArray = mcpTools.map((tool: any) => ({
       description: tool.description || '',
       name: tool.name,
@@ -102,7 +101,7 @@ const buildCloudMcpManifest = (params: {
     console.warn('[Cloud MCP] No tools or api found in manifest data');
   }
 
-  // 构建完整的 manifest
+  // Build complete manifest
   const manifest: LobeChatPluginManifest = {
     api: apiArray,
     author: data.author?.name || data.author || '',
@@ -130,7 +129,7 @@ const buildCloudMcpManifest = (params: {
   return manifest;
 };
 
-// 测试连接结果类型
+// Test connection result type
 export interface TestMcpConnectionResult {
   error?: string;
   manifest?: LobeChatPluginManifest;
@@ -146,7 +145,7 @@ export interface PluginMCPStoreAction {
   ) => Promise<boolean | undefined>;
   loadMoreMCPPlugins: () => void;
   resetMCPPluginList: (keywords?: string) => void;
-  // 测试连接相关方法
+  // Test connection related methods
   testMcpConnection: (params: McpConnectionParams) => Promise<TestMcpConnectionResult>;
   uninstallMCPPlugin: (identifier: string) => Promise<void>;
   updateMCPInstallProgress: (identifier: string, progress: MCPInstallProgress | undefined) => void;
@@ -160,12 +159,12 @@ export const createMCPPluginStoreSlice: StateCreator<
   PluginMCPStoreAction
 > = (set, get) => ({
   cancelInstallMCPPlugin: async (identifier) => {
-    // 获取并取消AbortController
+    // Get and cancel AbortController
     const abortController = get().mcpInstallAbortControllers[identifier];
     if (abortController) {
       abortController.abort();
 
-      // 清理AbortController存储
+      // Clean up AbortController storage
       set(
         produce((draft: MCPStoreState) => {
           delete draft.mcpInstallAbortControllers[identifier];
@@ -175,18 +174,18 @@ export const createMCPPluginStoreSlice: StateCreator<
       );
     }
 
-    // 清理安装进度和加载状态
+    // Clean up installation progress and loading state
     get().updateMCPInstallProgress(identifier, undefined);
     get().updateInstallLoadingState(identifier, undefined);
   },
 
-  // 取消 MCP 连接测试
+  // Cancel MCP connection test
   cancelMcpConnectionTest: (identifier) => {
     const abortController = get().mcpTestAbortControllers[identifier];
     if (abortController) {
       abortController.abort();
 
-      // 清理状态
+      // Clean up state
       set(
         produce((draft: MCPStoreState) => {
           draft.mcpTestLoading[identifier] = false;
