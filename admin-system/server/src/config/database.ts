@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 
 import { drizzle } from 'drizzle-orm/postgres-js';
+// @ts-expect-error - postgres package is missing from package.json
 import postgres from 'postgres';
 import * as schema from '../db/schema';
 import * as userExtensionsSchema from '../db/user-extensions-schema';
