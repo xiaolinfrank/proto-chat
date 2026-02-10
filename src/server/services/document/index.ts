@@ -127,20 +127,20 @@ export class DocumentService {
   }
 
   /**
-   * 解析文件内容
+   * Parse file content
    *
    */
   async parseFile(fileId: string): Promise<LobeDocument> {
     const { filePath, file, cleanup } = await this.fileService.downloadFileToLocal(fileId);
 
     const logPrefix = `[${file.name}]`;
-    log(`${logPrefix} 开始解析文件, 路径: ${filePath}`);
+    log(`${logPrefix} Starting to parse file, path: ${filePath}`);
 
     try {
-      // 使用loadFile加载文件内容
+      // Load file content using loadFile
       const fileDocument = await loadFile(filePath);
 
-      log(`${logPrefix} 文件解析成功 %O`, {
+      log(`${logPrefix} File parsed successfully %O`, {
         fileType: fileDocument.fileType,
         size: fileDocument.content.length,
       });
@@ -160,7 +160,7 @@ export class DocumentService {
 
       return document as LobeDocument;
     } catch (error) {
-      console.error(`${logPrefix} 文件解析失败:`, error);
+      console.error(`${logPrefix} File parsing failed:`, error);
       throw error;
     } finally {
       cleanup();
