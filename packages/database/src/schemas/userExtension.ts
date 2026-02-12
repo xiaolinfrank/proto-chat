@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
-// 主项目用户扩展表 - 管理订阅信息和扩展字段
+// Main project user extensions table - manages subscription information and extension fields
 export const userExtensions = pgTable(
     'user_extensions',
     {
@@ -14,17 +14,17 @@ export const userExtensions = pgTable(
 
 
 
-        // 暂停时间
-        // 管理备注
+        // Suspension time
+        // Admin notes
         adminNotes: text('admin_notes'),
 
-        // 当前计费周期 'month' | 'year'，free 用户为 NULL
+        // Current billing interval 'month' | 'year', NULL for free users
         billingInterval: text('billing_interval'),
 
-        // 订阅类型：'recurring' (自动续订) | 'onetime' (一次性付费)
+        // Subscription type: 'recurring' (auto-renew) | 'onetime' (one-time payment)
         subscriptionType: text('subscription_type').default('recurring'),
 
-        // 一次性付费的持续月数 (1, 3, 6, 12)，循环订阅为 NULL
+        // Duration months for one-time payment (1, 3, 6, 12), NULL for recurring subscriptions
         durationMonths: integer('duration_months'),
 
 
@@ -56,8 +56,8 @@ export const userExtensions = pgTable(
 
 
 
-        // 管理员备注
-        // 时间戳
+        // Administrator notes
+        // Timestamp
         createdAt: timestamp('created_at').defaultNow().notNull(),
 
 
@@ -68,11 +68,11 @@ export const userExtensions = pgTable(
 
 
 
-        // 关联主项目用户表 users.id
-        // 套餐订阅信息
+        // References main project users table users.id
+        // Plan subscription information
         currentPlan: text('current_plan').default('free'),
-        // 上次使用量重置时间
-        // 扩展功能开关
+        // Last usage reset time
+        // Feature toggles
         features: jsonb('features').default({}).notNull(),
 
 
@@ -99,8 +99,8 @@ export const userExtensions = pgTable(
 
 
 
-        // 扩展功能配置
-        // 账户状态
+        // Extended feature configuration
+        // Account status
         isSuspended: boolean('is_suspended').default(false),
 
 
@@ -130,26 +130,26 @@ export const userExtensions = pgTable(
 
 
 
-        // 下次积分发放时间
+        // Next credit grant time
         nextCreditGrantAt: timestamp('next_credit_grant_at'),
 
-        // 下一个计费周期预设的方案 ID (用于中途降级或取消订阅)
+        // Next billing cycle preset plan ID (used for mid-term downgrade or subscription cancellation)
         nextPlanId: text('next_plan_id'),
 
-        // ============ 签约信息 ============
-        // 当前生效的签约协议ID
+        // ============ Agreement information ============
+        // Current active agreement ID
         currentAgreementId: text('current_agreement_id'),
-        // 自动续费状态: true=已开启, false=已关闭
+        // Auto-renewal status: true=enabled, false=disabled
         autoRenew: boolean('auto_renew').default(false),
 
-        // ============ 降级信息 ============
-        // 降级原因: deduct_failed(扣款失败), user_unsign(用户解约), expired(到期未续费)
+        // ============ Downgrade information ============
+        // Downgrade reason: deduct_failed (payment failed), user_unsign (user cancelled), expired (expired without renewal)
         downgradeReason: text('downgrade_reason'),
-        // 降级前的套餐slug
+        // Plan slug before downgrade
         previousPlanSlug: text('previous_plan_slug'),
-        // 降级前的套餐名称
+        // Plan name before downgrade
         previousPlanName: text('previous_plan_name'),
-        // 降级时间
+        // Downgrade time
         downgradeAt: timestamp('downgrade_at'),
 
 
@@ -173,7 +173,7 @@ export const userExtensions = pgTable(
         onboarding: jsonb('onboarding'),
 
 
-        // free, basic, pro, enterprise
+        // Plan expiration time (free, basic, pro, enterprise)
         planExpiresAt: timestamp('plan_expires_at'),
 
         planId: text('plan_id'),
@@ -193,7 +193,7 @@ export const userExtensions = pgTable(
 
 
 
-        // 是否被暂停
+        // Whether suspended
         suspendReason: text('suspend_reason'),
 
 
@@ -201,7 +201,7 @@ export const userExtensions = pgTable(
 
 
 
-        // 暂停原因
+        // Suspension reason
         suspendedAt: timestamp('suspended_at'),
 
 
@@ -210,12 +210,12 @@ export const userExtensions = pgTable(
         userId: text('user_id').unique().notNull(),
     },
     (table) => ({
-        // 唯一索引
+        // Unique index
         userIdIdx: uniqueIndex('user_extension_user_id_idx').on(table.userId),
     }),
 );
 
-// 套餐历史记录表
+// Plan subscription history table
 export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
@@ -230,14 +230,14 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
 
-    // 交易ID
+    // Transaction ID
     createdAt: timestamp('created_at').defaultNow().notNull(),
 
 
 
 
 
-    // 开始时间
+    // Start time
     endedAt: timestamp('ended_at'),
 
 
@@ -260,10 +260,10 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
         .primaryKey()
         .default(sql`gen_random_uuid()`),
 
-    // 结束时间
+    // End time
     isActive: boolean('is_active').default(true).notNull(),
-    // 是否激活
-    // 支付信息
+    // Whether active
+    // Payment information
     paymentMethod: text('payment_method'),
 
 
@@ -286,7 +286,7 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
 
-    // 套餐类型
+    // Plan type
     planName: text('plan_name').notNull(),
 
 
@@ -300,22 +300,22 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
 
-    // 关联主项目用户ID
+    // References main project user ID
     planType: text('plan_type').notNull(),
 
-    // 套餐名称
+    // Plan name
     price: integer('price').default(0),
 
-    // 计费周期
+    // Billing interval
     billingInterval: text('billing_interval'),
 
-    // 订阅类型：'recurring' (自动续订) | 'onetime' (一次性付费)
+    // Subscription type: 'recurring' (auto-renew) | 'onetime' (one-time payment)
     subscriptionType: text('subscription_type').default('recurring'),
 
-    // 一次性付费的持续月数 (1, 3, 6, 12)，循环订阅为 NULL
+    // Duration months for one-time payment (1, 3, 6, 12), NULL for recurring subscriptions
     durationMonths: integer('duration_months'),
 
-    // 关联订单号
+    // Associated order number
     orderNo: varchar('order_no', { length: 64 }),
 
     slug: text('slug'),
@@ -329,8 +329,8 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
 
-    // 套餐特性
-    // 时间信息
+    // Plan features
+    // Time information
     startedAt: timestamp('started_at').defaultNow().notNull(),
 
 
@@ -354,7 +354,7 @@ export const userSubscriptionHistory = pgTable('user_subscription_history', {
 
 
 
-    // 支付方式
+    // Payment method
     transactionId: text('transaction_id'),
 
 
