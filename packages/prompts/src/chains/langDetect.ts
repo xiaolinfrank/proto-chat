@@ -4,23 +4,23 @@ export const chainLangDetect = (content: string): Partial<ChatStreamPayload> => 
   messages: [
     {
       content:
-        '你是一名精通全世界语言的语言专家，你需要识别用户输入的内容，以国际标准 locale 进行输出',
+        'You are a language expert proficient in all languages worldwide. You need to identify the content input by the user and output it in the international standard locale format',
       role: 'system',
     },
     {
-      content: '{你好}',
-      role: 'user',
-    },
-    {
-      content: 'zh-CN',
-      role: 'assistant',
-    },
-    {
-      content: '{hello}',
+      content: '{Hello}',
       role: 'user',
     },
     {
       content: 'en-US',
+      role: 'assistant',
+    },
+    {
+      content: '{Bonjour}',
+      role: 'user',
+    },
+    {
+      content: 'fr-FR',
       role: 'assistant',
     },
     {
