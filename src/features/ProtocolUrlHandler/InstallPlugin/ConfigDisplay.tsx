@@ -104,19 +104,19 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
   const { t } = useTranslation('plugin');
   const { styles } = useStyles();
 
-  // 本地状态管理配置数据
+  // Local state management for configuration data
   const [currentEnv, setCurrentEnv] = useState<Record<string, string>>(schema.config.env || {});
   const [currentHeaders, setCurrentHeaders] = useState<Record<string, string>>(
     schema.config.headers || {},
   );
 
-  // 处理环境变量更新
+  // Handle environment variable updates
   const handleEnvUpdate = (newEnv: Record<string, string>) => {
     setCurrentEnv(newEnv);
     onConfigUpdate?.({ env: newEnv, headers: currentHeaders });
   };
 
-  // 处理 Headers 更新
+  // Handle headers updates
   const handleHeadersUpdate = (newHeaders: Record<string, string>) => {
     setCurrentHeaders(newHeaders);
     onConfigUpdate?.({ env: currentEnv, headers: newHeaders });
@@ -124,7 +124,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
 
   return (
     <Flexbox gap={16}>
-      {/* 安装信息 */}
+      {/* Installation information */}
       <Block className={styles.configSection} variant={'outlined'}>
         <div className={styles.configTitle}>
           <LinkIcon size={14} />
@@ -132,7 +132,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
         </div>
 
         <div className={styles.previewContainer}>
-          {/* 连接类型 */}
+          {/* Connection type */}
           <div className={styles.previewItem}>
             <span className={styles.previewLabel}>{t('protocolInstall.config.type.label')}</span>
             <div className={styles.typeValue}>
@@ -142,7 +142,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
             </div>
           </div>
 
-          {/* HTTP 类型显示 URL */}
+          {/* Display URL for HTTP type */}
           {schema.config.type === 'http' && schema.config.url && (
             <div className={styles.previewItem}>
               <span className={styles.previewLabel}>{t('protocolInstall.config.url')}</span>
@@ -150,7 +150,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
             </div>
           )}
 
-          {/* STDIO 类型显示命令和参数 */}
+          {/* Display command and args for STDIO type */}
           {schema.config.type === 'stdio' && (
             <>
               {schema.config.command && (
@@ -171,7 +171,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
         </div>
       </Block>
 
-      {/* 配置信息 - 直接使用 KeyValueEditor */}
+      {/* Configuration information - using KeyValueEditor directly */}
       <Block className={styles.configSection} variant={'outlined'}>
         <div className={styles.configTitle}>
           <Settings2Icon size={14} />
@@ -181,7 +181,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
         </div>
 
         <div className={styles.configEditor}>
-          {/* HTTP 类型显示 Headers */}
+          {/* Display headers for HTTP type */}
           {schema.config.type === 'http' && (
             <KeyValueEditor
               addButtonText={t('protocolInstall.config.addHeaders', { defaultValue: '添加请求头' })}
@@ -191,7 +191,7 @@ const ConfigDisplay = memo<ConfigDisplayProps>(({ schema, onConfigUpdate }) => {
             />
           )}
 
-          {/* STDIO 类型显示环境变量 */}
+          {/* Display environment variables for STDIO type */}
           {schema.config.type === 'stdio' && (
             <KeyValueEditor
               addButtonText={t('protocolInstall.config.addEnv', { defaultValue: '添加环境变量' })}
