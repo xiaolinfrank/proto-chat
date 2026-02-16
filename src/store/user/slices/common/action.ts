@@ -19,7 +19,7 @@ const n = setNamespace('common');
 
 const GET_USER_STATE_KEY = 'initUserState';
 /**
- * 设置操作
+ * Common settings actions
  */
 export interface CommonAction {
   refreshUserState: () => Promise<void>;
