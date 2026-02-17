@@ -7,12 +7,12 @@ export const genMessage = (
 ) => {
   if (!startMessageId) return [];
 
-  // 如果是独立话题模式，则只显示话题开始消息
+  // If in standalone topic mode, only show topic start message
   if (threadMode === ThreadType.Standalone) {
     return messages.filter((m) => m.id === startMessageId);
   }
 
-  // 如果是连续模式下，那么只显示话题开始消息和话题分割线
+  // If in continuous mode, only show topic start message and topic divider
   const targetIndex = messages.findIndex((item) => item.id === startMessageId);
 
   if (targetIndex < 0) return [];

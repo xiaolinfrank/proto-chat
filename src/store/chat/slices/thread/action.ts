@@ -184,7 +184,7 @@ export const chatThreadMessage: StateCreator<
 
     set({ isCreatingThreadMessage: false }, false, n('creatingThreadMessage/stop'));
 
-    // 说明是在新建 thread，需要自动总结标题
+    // This means we are creating a new thread, need to auto summarize the title
     if (!portalThreadId) {
       const portalThread = threadSelectors.currentPortalThread(get());
 
