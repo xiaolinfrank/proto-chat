@@ -14,33 +14,33 @@ import {
 import { createdAt, timestamptz, updatedAt } from './_helpers';
 
 /**
- * 系统级别的Embedding配置（单行表）
- * 存储全局使用的embedding模型配置
+ * System-level Embedding configuration (single-row table)
+ * Stores the globally used embedding model configuration
  */
 export const systemEmbeddingConfig = pgTable('system_embedding_config', {
-  // 主键，固定为 'default'（单行表）
+  // Primary key, fixed as 'default' (single-row table)
   id: varchar('id', { length: 50 }).primaryKey().default('default'),
-  // 供应商ID，如 'openrouter', 'openai'
+  // Provider ID, e.g. 'openrouter', 'openai'
   providerId: varchar('provider_id', { length: 64 }).notNull(),
-  // 模型ID，如 'qwen/qwen3-embedding-4b'
+  // Model ID, e.g. 'qwen/qwen3-embedding-4b'
   modelId: varchar('model_id', { length: 200 }).notNull(),
-  // 显示名称
+  // Display name
   displayName: varchar('display_name', { length: 200 }),
 
-  // API配置（加密存储）
+  // API configuration (encrypted storage)
   apiKey: text('api_key'),
   baseUrl: varchar('base_url', { length: 500 }),
   modelsSyncUrl: varchar('models_sync_url', { length: 500 }),
 
-  // 定价（积分/百万tokens）
+  // Pricing (credits per million tokens)
   inputPrice: decimal('input_price', { precision: 15, scale: 4 }),
   currency: varchar('currency', { length: 10 }).default('USD'),
 
-  // 模型元数据
+  // Model metadata
   contextTokens: integer('context_tokens'),
   dimensions: integer('dimensions').default(1024),
 
-  // 最后同步时间
+  // Last sync time
   lastSyncedAt: timestamptz('last_synced_at'),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
@@ -50,29 +50,29 @@ export type SystemEmbeddingConfigInsert = typeof systemEmbeddingConfig.$inferIns
 export type SystemEmbeddingConfigSelect = typeof systemEmbeddingConfig.$inferSelect;
 
 /**
- * Embedding可用模型列表
- * 存储从供应商同步的embedding模型信息，仅供选择使用
+ * List of available Embedding models
+ * Stores embedding model information synced from providers, for selection purposes only
  */
 export const systemEmbeddingModels = pgTable(
   'system_embedding_models',
   {
     id: serial('id').primaryKey(),
-    // 模型ID，如 'qwen/qwen3-embedding-4b'
+    // Model ID, e.g. 'qwen/qwen3-embedding-4b'
     modelId: varchar('model_id', { length: 200 }).notNull(),
-    // 显示名称
+    // Display name
     displayName: varchar('display_name', { length: 200 }).notNull(),
-    // 供应商ID
+    // Provider ID
     providerId: varchar('provider_id', { length: 64 }).notNull(),
 
-    // 模型能力
+    // Model capabilities
     dimensions: integer('dimensions').default(1024),
     contextTokens: integer('context_tokens'),
 
-    // 定价信息（从同步API获取）
+    // Pricing information (fetched from sync API)
     inputPrice: decimal('input_price', { precision: 15, scale: 4 }),
     currency: varchar('currency', { length: 10 }).default('USD'),
 
-    // 同步时间
+    // Sync time
     syncedAt: timestamptz('synced_at'),
     createdAt: createdAt(),
   },
@@ -86,8 +86,8 @@ export type SystemEmbeddingModelInsert = typeof systemEmbeddingModels.$inferInse
 export type SystemEmbeddingModelSelect = typeof systemEmbeddingModels.$inferSelect;
 
 /**
- * Embedding使用日志
- * 记录用户使用embedding的详细日志，用于成本分析和审计
+ * Embedding usage logs
+ * Records detailed logs of user embedding usage for cost analysis and auditing
  */
 export const embeddingUsageLogs = pgTable(
   'embedding_usage_logs',
@@ -97,18 +97,18 @@ export const embeddingUsageLogs = pgTable(
     modelId: varchar('model_id', { length: 200 }).notNull(),
     providerId: varchar('provider_id', { length: 64 }).notNull(),
 
-    // Token使用量
+    // Token usage
     inputTokens: integer('input_tokens').notNull(),
     totalTokens: integer('total_tokens').notNull(),
 
-    // 费用记录（使用 scale: 8 以支持极小的成本值，如 $0.00000001）
+    // Cost records (using scale: 8 to support very small cost values, e.g. $0.00000001)
     costPrice: decimal('cost_price', { precision: 15, scale: 8 }),
     userPrice: decimal('user_price', { precision: 15, scale: 8 }),
 
-    // 操作上下文
+    // Operation context
     operationType: varchar('operation_type', { length: 50 }), // 'file_chunking', 'semantic_search', 'rag_eval'
-    fileId: text('file_id'), // 如果是文件嵌入（对应 files.id - text类型）
-    chunkCount: integer('chunk_count'), // 批量嵌入的chunk数量
+    fileId: text('file_id'), // If this is a file embedding (corresponds to files.id - text type)
+    chunkCount: integer('chunk_count'), // Number of chunks in batch embedding
 
     createdAt: createdAt(),
   },
