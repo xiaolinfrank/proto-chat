@@ -6,7 +6,7 @@ export enum StorageModeEnum {
 }
 
 /**
- * 远程服务器配置相关的事件
+ * Configuration for remote server data synchronization
  */
 export interface DataSyncConfig {
   active?: boolean;
