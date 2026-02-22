@@ -20,11 +20,11 @@ export class UpdaterManager {
   constructor(app: AppCore) {
     this.app = app;
 
-    // 设置日志
+    // Set up logging
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
 
-    logger.debug(`[Updater] Log file should be at: ${log.transports.file.getFile().path}`); // 打印路径
+    logger.debug(`[Updater] Log file should be at: ${log.transports.file.getFile().path}`); // Print path
   }
 
   get mainWindow() {
