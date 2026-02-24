@@ -85,12 +85,12 @@ export const modelPricings = pgTable('model_pricings', {
         .primaryKey()
         .$defaultFn(() => idGenerator('mp')),
 
-    // Cost price in credits per 1,000,000 tokens (成本价)
+    // Cost price in credits per 1,000,000 tokens
     inputPrice: numeric('input_price', { precision: 15, scale: 6 }).default('0').notNull(),
 
     model: text('model').notNull(),
 
-    // Cost price in credits per 1,000,000 tokens (成本价)
+    // Cost price in credits per 1,000,000 tokens
     outputPrice: numeric('output_price', { precision: 15, scale: 6 }).default('0').notNull(),
 
     // Price in credits per request
@@ -102,7 +102,7 @@ export const modelPricings = pgTable('model_pricings', {
     // Sub-provider (only for ProtoChat), e.g. "openrouter", "deepseek"
     subProvider: text('sub_provider'),
 
-    // User price in credits per 1,000,000 tokens (用户价 = 成本价 × 系数)
+    // User price in credits per 1,000,000 tokens (user price = cost price × coefficient)
     // Pre-calculated to avoid runtime computation
     userInputPrice: numeric('user_input_price', { precision: 15, scale: 6 }).default('0').notNull(),
     userOutputPrice: numeric('user_output_price', { precision: 15, scale: 6 }).default('0').notNull(),
