@@ -22,12 +22,12 @@ const enableHistoryCount = (s: AgentStoreState) => {
   const config = currentAgentConfig(s);
   const chatConfig = currentAgentChatConfig(s);
 
-  // 如果开启了上下文缓存，且当前模型类型匹配，则不开启历史记录
+  // If context caching is enabled and the current model type matches, do not enable history
   const enableContextCaching = !chatConfig.disableContextCaching;
 
   if (enableContextCaching && isContextCachingModel(config.model)) return false;
 
-  // 当开启搜索时，针对 claude 3.7 sonnet 模型不开启历史记录
+  // When search is enabled, do not enable history for the claude 3.7 sonnet model
   const enableSearch = isAgentEnableSearch(s);
 
   if (enableSearch && isThinkingWithToolClaudeModel(config.model)) return false;
@@ -38,7 +38,7 @@ const enableHistoryCount = (s: AgentStoreState) => {
 const historyCount = (s: AgentStoreState): number => {
   const chatConfig = currentAgentChatConfig(s);
 
-  return chatConfig.historyCount ?? (DEFAULT_AGENT_CHAT_CONFIG.historyCount as number); // historyCount 为 0 即不携带历史消息
+  return chatConfig.historyCount ?? (DEFAULT_AGENT_CHAT_CONFIG.historyCount as number); // historyCount of 0 means no history messages are included
 };
 
 const displayMode = (s: AgentStoreState) => {
