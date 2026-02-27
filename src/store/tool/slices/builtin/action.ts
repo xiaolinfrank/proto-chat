@@ -7,7 +7,7 @@ import { ToolStore } from '../../store';
 const n = setNamespace('builtinTool');
 
 /**
- * 代理行为接口
+ * Builtin tool action interface
  */
 export interface BuiltinToolAction {
   toggleBuiltinToolLoading: (key: string, value: boolean) => void;
