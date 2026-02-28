@@ -160,12 +160,12 @@ export class LobeAzureAI implements LobeRuntimeAI {
   }
 
   private maskSensitiveUrl = (url: string) => {
-    // 使用正则表达式匹配 'https://' 后面和 '.azure.com/' 前面的内容
+    // Use regex to match content between 'https://' and '.azure.com/'
     const regex = /^(https:\/\/)([^.]+)(\.cognitiveservices\.azure\.com\/.*)$/;
 
-    // 使用替换函数
+    // Use a replacement function
     return url.replace(regex, (match, protocol, subdomain, rest) => {
-      // 将子域名替换为 '***'
+      // Replace subdomain with '***'
       return `${protocol}***${rest}`;
     });
   };

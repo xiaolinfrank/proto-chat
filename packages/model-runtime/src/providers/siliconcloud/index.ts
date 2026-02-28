@@ -57,9 +57,9 @@ export const params = {
       };
 
       if (thinking) {
-        // 只有部分模型支持指定 enable_thinking，其余一些慢思考模型只支持调节 thinking budget
+        // Only some models support specifying enable_thinking; other slow-thinking models only support adjusting the thinking budget
         const hybridThinkingModels = [
-          /GLM-4\.5(?!.*Air$)/, // GLM-4.5 和 GLM-4.5V（不包含 GLM-4.5 Air）
+          /GLM-4\.5(?!.*Air$)/, // GLM-4.5 and GLM-4.5V (excluding GLM-4.5 Air)
           /Qwen3-(?:\d+B|\d+B-A\d+B)$/, // Qwen3-8B、Qwen3-14B、Qwen3-32B、Qwen3-30B-A3B、Qwen3-235B-A22B
           /DeepSeek-V3\.1/,
           /Hunyuan-A13B-Instruct/,

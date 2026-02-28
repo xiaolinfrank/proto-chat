@@ -24,7 +24,7 @@ export const params = {
         const modelConfig = OpenRouterModels.find((m) => m.id === model);
         const defaultMaxOutput = modelConfig?.maxOutput;
 
-        // 配置优先级：用户设置 > 模型配置 > 硬编码默认值
+        // Configuration priority: user settings > model config > hardcoded defaults
         const getMaxTokens = () => {
           if (max_tokens) return max_tokens;
           if (defaultMaxOutput) return defaultMaxOutput;
@@ -71,13 +71,13 @@ export const params = {
       return [];
     }
 
-    // 处理前端获取的模型信息，转换为标准格式
+    // Process model information fetched from frontend, convert to standard format
     const formattedModels = modelList.map((model) => {
       const { top_provider, architecture, pricing, supported_parameters } = model;
 
       const inputModalities = architecture.input_modalities || [];
 
-      // 处理 name，默认去除冒号及其前面的内容
+      // Process name, by default remove content up to and including the colon
       let displayName = model.name;
       const colonIndex = displayName.indexOf(':');
       if (colonIndex !== -1) {
