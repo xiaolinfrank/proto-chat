@@ -319,7 +319,7 @@ export class LobeGoogleAI implements LobeRuntimeAI {
     } catch (e) {
       const err = e as Error;
 
-      // 移除之前的静默处理，统一抛出错误
+      // Remove previous silent handling, throw errors uniformly
       if (isAbortError(err)) {
         log('Request was cancelled');
         throw AgentRuntimeError.chat({
@@ -384,10 +384,10 @@ export class LobeGoogleAI implements LobeRuntimeAI {
         try {
           for await (const chunk of originalStream) {
             if (signal.aborted) {
-              // 如果有数据已经输出，优雅地关闭流而不是抛出错误
+              // If data has already been output, gracefully close the stream instead of throwing an error
               if (hasData) {
                 log('Stream cancelled gracefully, preserving existing output');
-                // 显式注入取消错误，避免走 SSE 兜底 unexpected_end
+                // Explicitly inject a cancellation error to avoid falling through to SSE fallback unexpected_end
                 controller.enqueue({
                   [LOBE_ERROR_KEY]: {
                     body: { name: 'Stream cancelled', provider, reason: 'aborted' },
@@ -399,7 +399,7 @@ export class LobeGoogleAI implements LobeRuntimeAI {
                 controller.close();
                 return;
               } else {
-                // 如果还没有数据输出，直接关闭流，由下游 SSE 在 flush 阶段补发错误事件
+                // If no data has been output yet, close the stream directly; downstream SSE will emit an error event during flush
                 log('Stream cancelled before any output');
                 controller.close();
                 return;
@@ -412,12 +412,12 @@ export class LobeGoogleAI implements LobeRuntimeAI {
         } catch (error) {
           const err = error as Error;
 
-          // 统一处理所有错误，包括 abort 错误
+          // Handle all errors uniformly, including abort errors
           if (isAbortError(err) || signal.aborted) {
-            // 如果有数据已经输出，优雅地关闭流
+            // If data has already been output, gracefully close the stream
             if (hasData) {
               log('Stream reading cancelled gracefully, preserving existing output');
-              // 显式注入取消错误，避免走 SSE 兜底 unexpected_end
+              // Explicitly inject a cancellation error to avoid falling through to SSE fallback unexpected_end
               controller.enqueue({
                 [LOBE_ERROR_KEY]: {
                   body: { name: 'Stream cancelled', provider, reason: 'aborted' },
@@ -430,7 +430,7 @@ export class LobeGoogleAI implements LobeRuntimeAI {
               return;
             } else {
               log('Stream reading cancelled before any output');
-              // 注入一个带详细错误信息的错误标记，交由下游 google-ai transformer 输出 error 事件
+              // Inject an error marker with detailed error info, delegating error event output to the downstream google-ai transformer
               controller.enqueue({
                 [LOBE_ERROR_KEY]: {
                   body: {
@@ -448,14 +448,14 @@ export class LobeGoogleAI implements LobeRuntimeAI {
               return;
             }
           } else {
-            // 处理其他流解析错误
+            // Handle other stream parsing errors
             log('Stream parsing error: %O', err);
-            // 尝试解析 Google 错误并提取 code/message/status
+            // Try to parse the Google error and extract code/message/status
             const { error: parsedError, errorType } = parseGoogleErrorMessage(
               err?.message || String(err),
             );
 
-            // 注入一个带详细错误信息的错误标记，交由下游 google-ai transformer 输出 error 事件
+            // Inject an error marker with detailed error info, delegating error event output to the downstream google-ai transformer
             controller.enqueue({
               [LOBE_ERROR_KEY]: {
                 body: { ...parsedError, provider },
@@ -530,12 +530,12 @@ export class LobeGoogleAI implements LobeRuntimeAI {
     const hasUrlContext = payload?.urlContext;
     const hasFunctionTools = tools && tools.length > 0;
 
-    // 如果已经有 tool_calls，优先处理 function declarations
+    // If there are already tool_calls, preferentially handle function declarations
     if (hasToolCalls && hasFunctionTools) {
       return buildGoogleTools(tools);
     }
 
-    // 构建并返回搜索相关工具（搜索工具不能与 FunctionCall 同时使用）
+    // Build and return search-related tools (search tools cannot be used simultaneously with FunctionCall)
     if (hasUrlContext && hasSearch) {
       return [{ urlContext: {} }, { googleSearch: {} }];
     }
@@ -546,7 +546,7 @@ export class LobeGoogleAI implements LobeRuntimeAI {
       return [{ googleSearch: {} }];
     }
 
-    // 最后考虑 function declarations
+    // Finally consider function declarations
     return buildGoogleTools(tools);
   }
 }

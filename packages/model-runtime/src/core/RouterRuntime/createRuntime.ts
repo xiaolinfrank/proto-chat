@@ -141,7 +141,7 @@ export const createRouterRuntime = ({
         baseURL: options.baseURL?.trim(),
       };
 
-      // 保存配置但不创建 runtimes
+      // Save configuration without creating runtimes
       this._routers = routers;
       this._params = params;
       this._id = id;

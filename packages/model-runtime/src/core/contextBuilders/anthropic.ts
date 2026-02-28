@@ -134,7 +134,7 @@ export const buildAnthropicMessages = async (
   const messages: Anthropic.Messages.MessageParam[] = [];
   let pendingToolResults: Anthropic.ToolResultBlockParam[] = [];
 
-  // 首先收集所有 assistant 消息中的 tool_call_id 以便后续查找
+  // First collect all tool_call_ids in assistant messages for later lookup
   const validToolCallIds = new Set<string>();
   for (const message of oaiMessages) {
     if (message.role === 'assistant' && message.tool_calls?.length) {
@@ -151,7 +151,7 @@ export const buildAnthropicMessages = async (
 
     // refs: https://docs.anthropic.com/claude/docs/tool-use#tool-use-and-tool-result-content-blocks
     if (message.role === 'tool') {
-      // 检查这个工具消息是否有对应的 assistant 工具调用
+      // Check if this tool message has a corresponding assistant tool call
       if (message.tool_call_id && validToolCallIds.has(message.tool_call_id)) {
         pendingToolResults.push({
           content: [{ text: message.content as string, type: 'text' }],
@@ -159,7 +159,7 @@ export const buildAnthropicMessages = async (
           type: 'tool_result',
         });
 
-        // 如果这是最后一个消息或者下一个消息不是 'tool'，则添加累积的工具结果作为一个 'user' 消息
+        // If this is the last message or the next message is not 'tool', add the accumulated tool results as a 'user' message
         if (index === oaiMessages.length - 1 || oaiMessages[index + 1].role !== 'tool') {
           messages.push({
             content: pendingToolResults,
@@ -168,7 +168,7 @@ export const buildAnthropicMessages = async (
           pendingToolResults = [];
         }
       } else {
-        // 如果工具消息没有对应的 assistant 工具调用，则作为普通文本处理
+        // If the tool message has no corresponding assistant tool call, treat it as plain text
         messages.push({
           content: message.content as string,
           role: 'user',

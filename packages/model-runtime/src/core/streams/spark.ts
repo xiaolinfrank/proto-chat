@@ -108,7 +108,7 @@ export const transformSparkStream = (chunk: OpenAI.ChatCompletionChunk): StreamP
   }
 
   if (item.finish_reason) {
-    // one-api 的流式接口，会出现既有 finish_reason ，也有 content 的情况
+    // The streaming interface of one-api may have both finish_reason and content at the same time
     //  {"id":"demo","model":"deepl-en","choices":[{"index":0,"delta":{"role":"assistant","content":"Introduce yourself."},"finish_reason":"stop"}]}
 
     if (typeof item.delta?.content === 'string' && !!item.delta.content) {
