@@ -10,7 +10,6 @@
  * Run frequency: Twice daily at 09:00 and 12:00
  * Vercel Cron: "0 9,12 * * *" (UTC+8 would be "0 1,4 * * *" in UTC)
  */
-
 import {
   paymentNotifications,
   serverDB,
@@ -85,11 +84,13 @@ async function processDeduction(
   agreement: any,
   plan: any,
   isRetry: boolean,
-): Promise<{ reason?: string, success: boolean; }> {
+): Promise<{ reason?: string; success: boolean }> {
   const orderNo = generateOrderNo();
   const amount = agreement.singleAmount;
 
-  console.log(`[AutoDeduct] Processing: user=${agreement.userId}, plan=${plan.slug}, amount=${amount}, retry=${isRetry}`);
+  console.log(
+    `[AutoDeduct] Processing: user=${agreement.userId}, plan=${plan.slug}, amount=${amount}, retry=${isRetry}`,
+  );
 
   try {
     // Call Alipay to deduct
@@ -163,7 +164,6 @@ async function processDeduction(
           .update(userSubscriptionHistory)
           .set({
             isActive: false,
-            updatedAt: now,
           })
           .where(
             and(
@@ -229,7 +229,9 @@ async function processDeduction(
         })
         .where(eq(userAgreements.id, agreement.id));
 
-      console.log(`[AutoDeduct] Failed: user=${agreement.userId}, reason=${result.errorMessage}, failCount=${failCount}`);
+      console.log(
+        `[AutoDeduct] Failed: user=${agreement.userId}, reason=${result.errorMessage}, failCount=${failCount}`,
+      );
       return { reason: result.errorMessage, success: false };
     }
   } catch (error) {
@@ -316,7 +318,6 @@ async function downgradeToFree(agreement: any, plan: any): Promise<void> {
       .update(userSubscriptionHistory)
       .set({
         isActive: false,
-        updatedAt: now,
       })
       .where(
         and(
@@ -405,7 +406,9 @@ export async function POST(request: NextRequest) {
     const currentHour = getChinaHour();
     const isSecondAttempt = currentHour >= 12;
 
-    console.log(`[AutoDeduct] Current hour (China): ${currentHour}, isSecondAttempt: ${isSecondAttempt}`);
+    console.log(
+      `[AutoDeduct] Current hour (China): ${currentHour}, isSecondAttempt: ${isSecondAttempt}`,
+    );
 
     // Get today's date string
     const today = new Date().toISOString().split('T')[0];
@@ -455,7 +458,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[AutoDeduct] Completed: success=${successCount}, fail=${failCount}, downgrade=${downgradeCount}`);
+    console.log(
+      `[AutoDeduct] Completed: success=${successCount}, fail=${failCount}, downgrade=${downgradeCount}`,
+    );
 
     return NextResponse.json({
       downgraded: downgradeCount,
