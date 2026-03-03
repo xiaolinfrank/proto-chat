@@ -2,7 +2,6 @@
  * WeChat Pay Notification Callback Handler
  * Handles payment success notifications from WeChat Pay
  */
-
 import {
   paymentNotifications,
   paymentOrders,
@@ -178,7 +177,8 @@ export async function POST(request: NextRequest) {
       const expiresAt = calculateExpiresAt(subscriptionType, planInterval, durationMonths);
 
       // For one-time payments, don't set nextCreditGrantAt (no auto-renewal)
-      const nextCreditGrantAt = subscriptionType === 'recurring' ? calculateNextCreditGrantAt() : null;
+      const nextCreditGrantAt =
+        subscriptionType === 'recurring' ? calculateNextCreditGrantAt() : null;
 
       // 7d. Update or insert user_extensions
       const existingUserExt = await tx
@@ -224,7 +224,6 @@ export async function POST(request: NextRequest) {
         .update(userSubscriptionHistory)
         .set({
           isActive: false,
-          updatedAt: now,
         })
         .where(
           and(
