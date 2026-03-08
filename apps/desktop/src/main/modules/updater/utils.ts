@@ -1,33 +1,33 @@
 import semver from 'semver';
 
 /**
- * 判断是否需要应用更新而非仅渲染层更新
- * @param currentVersion 当前版本
- * @param nextVersion 新版本
- * @returns 是否需要应用更新
+ * Determine whether an app update is needed rather than just a renderer layer update
+ * @param currentVersion Current version
+ * @param nextVersion New version
+ * @returns Whether an app update is needed
  */
 export const shouldUpdateApp = (currentVersion: string, nextVersion: string): boolean => {
-  // 如果版本号包含 .app 后缀，强制进行应用更新
+  // If the version includes the .app suffix, force an app update
   if (nextVersion.includes('.app')) {
     return true;
   }
 
   try {
-    // 解析版本号
+    // Parse version numbers
     const current = semver.parse(currentVersion);
     const next = semver.parse(nextVersion);
 
     if (!current || !next) return true;
 
-    // 主版本号或次版本号变更时，需要进行应用更新
+    // When the major or minor version changes, an app update is required
     if (current.major !== next.major || current.minor !== next.minor) {
       return true;
     }
 
-    // 仅修订版本号变更，优先进行渲染层热更新
+    // Only patch version changed — prefer renderer hot update
     return false;
   } catch {
-    // 解析失败时，默认进行应用更新
+    // On parse failure, default to performing an app update
     return true;
   }
 };
