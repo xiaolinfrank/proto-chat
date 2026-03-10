@@ -12,7 +12,6 @@
  * Run frequency: Daily at 06:00 UTC (14:00 Beijing time)
  * Vercel Cron: "0 6 * * *"
  */
-
 import {
   serverDB,
   subscriptionPlans,
@@ -45,12 +44,7 @@ async function grantMonthlyCredits() {
       userId: userExtensions.userId,
     })
     .from(userExtensions)
-    .where(
-      and(
-        lte(userExtensions.nextCreditGrantAt, now),
-        eq(userExtensions.isSuspended, false),
-      ),
-    );
+    .where(and(lte(userExtensions.nextCreditGrantAt, now), eq(userExtensions.isSuspended, false)));
 
   if (usersToGrant.length === 0) {
     console.log('[Cron] No users to grant credits');
@@ -218,7 +212,6 @@ async function processExpirations() {
           .update(userSubscriptionHistory)
           .set({
             isActive: false,
-            updatedAt: now,
           })
           .where(
             and(
