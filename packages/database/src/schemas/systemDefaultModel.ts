@@ -4,19 +4,19 @@ import { pgTable, varchar } from 'drizzle-orm/pg-core';
 import { createdAt, updatedAt } from './_helpers';
 
 /**
- * 系统级别的默认模型配置（单行表）
- * 存储全局默认使用的AI模型配置
+ * System-level default model configuration (single-row table)
+ * Stores the globally used default AI model configuration
  */
 export const systemDefaultModelConfig = pgTable('system_default_model_config', {
-  // 主键，固定为 'default'（单行表）
+  // Primary key, fixed as 'default' (single-row table)
   id: varchar('id', { length: 50 }).primaryKey().default('default'),
-  // 模型ID，如 'gpt-4o', 'claude-3-opus'
+  // Model ID, e.g. 'gpt-4o', 'claude-3-opus'
   modelId: varchar('model_id', { length: 200 }),
-  // 显示名称
+  // Display name
   displayName: varchar('display_name', { length: 200 }),
-  // 供应商ID
+  // Provider ID
   providerId: varchar('provider_id', { length: 64 }),
-  // 供应商名称
+  // Provider name
   providerName: varchar('provider_name', { length: 200 }),
 
   createdAt: createdAt(),
