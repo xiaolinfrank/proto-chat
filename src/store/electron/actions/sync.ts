@@ -9,7 +9,7 @@ import { initialState } from '../initialState';
 import type { ElectronStore } from '../store';
 
 /**
- * 设置操作
+ * Remote server sync actions
  */
 export interface ElectronRemoteServerAction {
   connectRemoteServer: (params: DataSyncConfig) => Promise<void>;
@@ -32,15 +32,15 @@ export const remoteSyncSlice: StateCreator<
 
     set({ isConnectingServer: true });
     try {
-      // 获取当前配置
+      // Get current configuration
       const config = await remoteServerService.getRemoteServerConfig();
 
-      // 如果已经激活，需要先清除
+      // If already active, clear first
       if (!isEqual(config, values)) {
         await remoteServerService.setRemoteServerConfig({ ...values, active: false });
       }
 
-      // 请求授权
+      // Request authorization
       const result = await remoteServerService.requestAuthorization(values);
 
       if (!result.success) {
@@ -50,7 +50,7 @@ export const remoteSyncSlice: StateCreator<
           remoteServerSyncError: { message: result.error, type: 'AUTH_ERROR' },
         });
       }
-      // 刷新状态
+      // Refresh state
       await get().refreshServerConfig();
     } catch (error) {
       console.error('远程服务器配置出错:', error);
@@ -66,9 +66,9 @@ export const remoteSyncSlice: StateCreator<
     set({ isConnectingServer: false });
     try {
       await remoteServerService.setRemoteServerConfig({ active: false, storageMode: 'local' });
-      // 更新表单URL为空
+      // Reset form URL to empty
       set({ dataSyncConfig: initialState.dataSyncConfig });
-      // 刷新状态
+      // Refresh state
       await get().refreshServerConfig();
     } catch (error) {
       console.error('断开连接失败:', error);
