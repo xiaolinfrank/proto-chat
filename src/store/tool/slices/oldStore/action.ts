@@ -56,10 +56,10 @@ export const createPluginStoreSlice: StateCreator<
     const { updateInstallLoadingState, refreshPlugins, updatePluginInstallProgress } = get();
 
     try {
-      // 开始安装流程
+      // Start installation process
       updateInstallLoadingState(name, true);
 
-      // 步骤 1: 获取插件清单
+      // Step 1: Fetch plugin manifest
       updatePluginInstallProgress(name, {
         progress: 25,
         step: PluginInstallStep.FETCHING_MANIFEST,
@@ -67,7 +67,7 @@ export const createPluginStoreSlice: StateCreator<
 
       const data = await toolService.getToolManifest(plugin.manifest);
 
-      // 步骤 2: 安装插件
+      // Step 2: Install plugin
       updatePluginInstallProgress(name, {
         progress: 60,
         step: PluginInstallStep.INSTALLING_PLUGIN,
@@ -82,13 +82,13 @@ export const createPluginStoreSlice: StateCreator<
 
       await refreshPlugins();
 
-      // 步骤 4: 完成安装
+      // Step 4: Complete installation
       updatePluginInstallProgress(name, {
         progress: 100,
         step: PluginInstallStep.COMPLETED,
       });
 
-      // 短暂显示完成状态后清除进度
+      // Briefly show completion status, then clear progress
       await sleep(1000);
 
       updatePluginInstallProgress(name, undefined);
@@ -98,7 +98,7 @@ export const createPluginStoreSlice: StateCreator<
 
       const err = error as PluginInstallError;
 
-      // 设置错误状态
+      // Set error state
       updatePluginInstallProgress(name, {
         error: err.message,
         progress: 0,
@@ -147,7 +147,7 @@ export const createPluginStoreSlice: StateCreator<
   loadMorePlugins: () => {
     const { oldPluginItems, pluginTotalCount, currentPluginPage } = get();
 
-    // 检查是否还有更多数据可以加载
+    // Check if there is more data to load
     if (oldPluginItems.length < (pluginTotalCount || 0)) {
       set(
         produce((draft: PluginStoreState) => {
@@ -233,19 +233,19 @@ export const createPluginStoreSlice: StateCreator<
             produce((draft: PluginStoreState) => {
               draft.pluginSearchLoading = false;
 
-              // 设置基础信息
+              // Set basic info
               if (!draft.isPluginListInit) {
                 draft.activePluginIdentifier = data.items?.[0]?.identifier;
                 draft.isPluginListInit = true;
                 draft.pluginTotalCount = data.totalCount;
               }
 
-              // 累积数据逻辑
+              // Data accumulation logic
               if (params.page === 1) {
-                // 第一页，直接设置
+                // First page, set directly
                 draft.oldPluginItems = uniqBy(data.items, 'identifier');
               } else {
-                // 后续页面，累积数据
+                // Subsequent pages, accumulate data
                 draft.oldPluginItems = uniqBy(
                   [...draft.oldPluginItems, ...data.items],
                   'identifier',
