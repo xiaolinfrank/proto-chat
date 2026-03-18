@@ -348,17 +348,17 @@ export const streamingExecutor: StateCreator<
           );
         }
 
-        // 等待所有图片上传完成
+        // Wait for all image uploads to complete
         let finalImages: ChatImageItem[] = [];
 
         if (uploadTasks.size > 0) {
           try {
-            // 等待所有上传任务完成
+            // Wait for all upload tasks to complete
             const uploadResults = await pMap(Array.from(uploadTasks.values()), (task) => task, {
               concurrency: 5,
             });
 
-            // 使用上传后的 S3 URL 替换原始图像数据
+            // Replace original image data with uploaded S3 URLs
             finalImages = uploadResults.filter((i) => !!i.url) as ChatImageItem[];
           } catch (error) {
             console.error('Error waiting for image uploads:', error);
