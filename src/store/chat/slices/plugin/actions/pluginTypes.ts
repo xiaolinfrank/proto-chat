@@ -118,7 +118,7 @@ export const pluginTypes: StateCreator<
     );
 
     try {
-      // payload.identifier 现在是存储用的 identifier（如 'google-calendar'）
+      // payload.identifier is now the storage identifier (e.g., 'google-calendar')
       const identifier = payload.identifier;
       const klavisServers = useToolStore.getState().servers || [];
       const server = klavisServers.find((s) => s.identifier === identifier);
@@ -173,7 +173,7 @@ export const pluginTypes: StateCreator<
       }
     }
 
-    // 如果报错则结束了
+    // If an error occurs, stop here
     if (!data) return;
 
     // operationId already declared above, reuse it
@@ -284,7 +284,7 @@ export const pluginTypes: StateCreator<
       }
     }
 
-    // 如果报错则结束了
+    // If an error occurs, stop here
 
     if (!data) return;
 
@@ -359,7 +359,7 @@ export const pluginTypes: StateCreator<
 
       data = '';
     }
-    // 如果报错则结束了
+    // If an error occurs, stop here
     if (!data) return;
 
     // operationId already declared above, reuse it

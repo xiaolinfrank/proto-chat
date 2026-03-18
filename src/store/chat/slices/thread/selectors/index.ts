@@ -36,7 +36,7 @@ const getTheadParentMessages = (s: ChatStoreState, data: UIChatMessage[]) => {
   if (s.startToForkThread) {
     const startMessageId = threadStartMessageId(s)!;
 
-    // 存在 threadId 的消息是子消息，在创建付消息时需要忽略
+    // Messages with threadId are child messages, should be ignored when creating parent messages
     const messages = data.filter((m) => !m.threadId);
     return genMessage(messages, startMessageId, s.newThreadMode);
   }
@@ -49,7 +49,7 @@ const getTheadParentMessages = (s: ChatStoreState, data: UIChatMessage[]) => {
 // =========================================== //
 
 /**
- * 获取当前 thread 的父级消息
+ * Get parent messages of the current thread
  */
 const portalDisplayParentMessages = (s: ChatStoreState): UIChatMessage[] => {
   const data = displayMessageSelectors.activeDisplayMessages(s);

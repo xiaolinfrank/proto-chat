@@ -7,7 +7,7 @@ import { createDevtools } from '../middleware/createDevtools';
 import { type UrlHydrationAction, urlHydrationAction } from './action';
 import { type UrlHydrationState, initialState } from './initialState';
 
-//  ===============  聚合 createStoreFn ============ //
+//  ===============  Aggregate createStoreFn ============ //
 
 export interface UrlHydrationStore extends UrlHydrationState, UrlHydrationAction {}
 
@@ -18,7 +18,7 @@ const createStore: StateCreator<UrlHydrationStore, [['zustand/devtools', never]]
   ...urlHydrationAction(...parameters),
 });
 
-//  ===============  实装 useStore ============ //
+//  ===============  Implement useStore ============ //
 
 const devtools = createDevtools('urlHydration');
 
