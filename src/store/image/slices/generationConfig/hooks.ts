@@ -90,16 +90,16 @@ export function useDimensionControl() {
   const aspectRatioOptions = useMemo(() => {
     const modelOptions = paramsSchema?.aspectRatio?.enum || [];
 
-    // 如果 schema 里面有 aspectRatio 并且不为空，直接使用 schema 里面的选项
+    // If the schema has a non-empty aspectRatio, use the options from the schema directly
     if (modelOptions.length > 0) {
       return modelOptions;
     }
 
-    // 否则使用预设选项
+    // Otherwise use preset options
     return PRESET_ASPECT_RATIOS;
   }, [paramsSchema]);
 
-  // 只要不是所有维度相关的控件都不显示，那么这个容器就应该显示
+  // Show the container as long as at least one dimension-related control is visible
   const showDimensionControl = isSupportAspectRatio || isSupportWidth || isSupportHeight;
 
   return {
