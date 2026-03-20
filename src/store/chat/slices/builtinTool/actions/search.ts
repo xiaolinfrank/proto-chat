@@ -26,8 +26,8 @@ export interface SearchAction {
   search: (id: string, data: SearchQuery, aiSummary?: boolean) => Promise<void | boolean>;
   togglePageContent: (url: string) => void;
   /**
-   * 重新发起搜索
-   * @description 会更新插件的 arguments 参数，然后再次搜索
+   * Re-initiate search
+   * @description Updates the plugin's arguments parameter and searches again
    */
   triggerSearchAgain: (
     id: string,
@@ -137,7 +137,7 @@ export const searchSlice: StateCreator<
     const operationId = get().messageOperationMap[id];
     const context = operationId ? { operationId } : undefined;
 
-    // 1. 创建一个新的 tool call message
+    // 1. Create a new tool call message
     const newToolCallId = `tool_call_${nanoid()}`;
 
     const toolMessage: CreateMessageParams = {
@@ -166,14 +166,14 @@ export const searchSlice: StateCreator<
     };
 
     const [result] = await Promise.all([
-      // 1. 添加 tool message
+      // 1. Add tool message
       optimisticCreateMessage(toolMessage, context),
-      // 2. 将这条 tool call message 插入到 ai 消息的 tools 中
+      // 2. Insert this tool call message into the AI message's tools
       addToolItem(),
     ]);
     if (!result) return;
 
-    // 将新创建的 tool message 激活
+    // Activate the newly created tool message
     openToolUI(result.id, message.plugin.identifier);
   },
 
@@ -241,7 +241,7 @@ export const searchSlice: StateCreator<
 
       await get().optimisticUpdateMessageContent(id, content, undefined, context);
 
-      // 如果 aiSummary 为 true，则会自动触发总结
+      // If aiSummary is true, it will automatically trigger a summary
       return aiSummary;
     } catch (error) {
       const err = error as Error;
