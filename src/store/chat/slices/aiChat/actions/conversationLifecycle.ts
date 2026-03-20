@@ -94,7 +94,7 @@ export const conversationLifecycle: StateCreator<
       !!chatConfig.enableAutoCreateTopic &&
       messages.length + 2 >= autoCreateThreshold;
 
-    // 构造服务端模式临时消息的本地媒体预览（优先使用 S3 URL）
+    // Build local media preview for server-mode temporary messages (prefer S3 URL)
     const filesInStore = getFileStoreState().chatUploadFileList;
     const tempImages: ChatImageItem[] = filesInStore
       .filter((f) => f.file?.type?.startsWith('image'))
@@ -216,7 +216,7 @@ export const conversationLifecycle: StateCreator<
         }
       }
     } finally {
-      // 创建了新topic 或者 用户 cancel 了消息（或者失败了），此时无 data
+      // Created a new topic or user cancelled the message (or it failed), no data at this point
       if (data?.isCreateNewTopic || !data) {
         get().internal_dispatchMessage(
           { type: 'deleteMessages', ids: [tempId, tempAssistantId] },
@@ -323,7 +323,7 @@ export const conversationLifecycle: StateCreator<
     try {
       const traceId = params?.traceId ?? dbMessageSelectors.getTraceIdByDbMessageId(id)(get());
 
-      // 切一个新的激活分支
+      // Switch to a new active branch
       await get().switchMessageBranch(id, item.branch ? item.branch.count : 1);
 
       await internal_execAgentRuntime({
@@ -359,10 +359,10 @@ export const conversationLifecycle: StateCreator<
     const currentIndex = chats.findIndex((c) => c.id === id);
     const currentMessage = chats[currentIndex];
 
-    // 消息是 AI 发出的因此需要找到它的 user 消息
+    // The message was sent by AI, so we need to find its user message
     const userId = currentMessage.parentId;
     const userIndex = chats.findIndex((c) => c.id === userId);
-    // 如果消息没有 parentId，那么同 user 模式
+    // If the message has no parentId, treat it the same as user mode
     const contextMessages = chats.slice(0, userIndex < 0 ? currentIndex + 1 : userIndex + 1);
 
     if (contextMessages.length <= 0 || !userId) return;
