@@ -59,7 +59,7 @@ export const topicReducer = (state: ChatTopic[] = [], payload: ChatTopicDispatch
           // Only update if the merged value is different from current (excluding updatedAt)
 
           if (!isEqual(currentTopic, mergedTopic)) {
-            // TODO: updatedAt 类型后续需要修改为 Date
+            // TODO: the type of updatedAt needs to be changed to Date in the future
             // @ts-ignore
             draftState[topicIndex] = { ...mergedTopic, updatedAt: new Date() };
           }
