@@ -127,7 +127,7 @@ export const pluginOptimisticUpdate: StateCreator<
       context,
     );
 
-    // 同样需要更新 assistantMessage 的 pluginArguments
+    // Also need to update the pluginArguments of assistantMessage
     if (assistantMessage) {
       get().internal_dispatchMessage(
         {

@@ -6,8 +6,8 @@ import type { SupervisorTodoItem } from './supervisor';
 
 export interface ChatMessageState {
   /**
-   * @title 当前活动的会话
-   * @description 当前正在编辑或查看的会话
+   * @title Currently active session
+   * @description The session currently being edited or viewed
    */
   activeId: string;
   /**
