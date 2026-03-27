@@ -15,36 +15,36 @@ import {
 import { createdAt, timestamptz, updatedAt } from './_helpers';
 
 /**
- * ProtoChat 底层供应商配置
- * 存储OpenRouter、DeepSeek等底层供应商的API配置
+ * ProtoChat underlying provider configuration
+ * Stores API configurations for underlying providers like OpenRouter and DeepSeek
  */
 export const protochatProviders = pgTable(
   'protochat_providers',
   {
     id: varchar('id', { length: 64 }).primaryKey(),
     name: varchar('name', { length: 100 }).notNull(),
-    // 'aggregator' = 聚合平台(如OpenRouter), 'direct' = 直连供应商(如DeepSeek)
+    // 'aggregator' = aggregation platform (e.g. OpenRouter), 'direct' = direct provider (e.g. DeepSeek)
     type: varchar('type', { length: 50 }).notNull(),
     enabled: boolean('enabled').default(true).notNull(),
-    // 优先级，用于选择供应商时排序
+    // Priority, used to sort providers during selection
     priority: integer('priority').default(0),
 
-    // 供应商别名，用于生成模型ID，隐藏真实供应商名称
-    // 格式如 a1, b2, c3，在模型ID中使用: protochat::{alias}::{modelId}
+    // Provider alias, used to generate model IDs and hide real provider name
+    // Format like a1, b2, c3, used in model ID as: protochat::{alias}::{modelId}
     alias: varchar('alias', { length: 10 }),
 
-    // API配置
+    // API configuration
     apiKey: text('api_key'),
     baseUrl: varchar('base_url', { length: 500 }),
-    // 可选的自定义端点
+    // Optional custom endpoint
     apiEndpoint: varchar('api_endpoint', { length: 500 }),
 
-    // 定价同步配置
-    // 'api' = 从供应商API获取, 'model_bank' = 从Model-Bank获取, 'manual' = 手动配置
+    // Pricing sync configuration
+    // 'api' = fetched from provider API, 'model_bank' = from Model-Bank, 'manual' = manually configured
     pricingSyncStrategy: varchar('pricing_sync_strategy', { length: 50 }),
     pricingApiUrl: varchar('pricing_api_url', { length: 500 }),
 
-    // 其他配置（JSON格式，可扩展）
+    // Other configuration (JSON format, extensible)
     settings: jsonb('settings'),
 
     createdAt: createdAt(),
@@ -61,32 +61,32 @@ export type ProtochatProviderInsert = typeof protochatProviders.$inferInsert;
 export type ProtochatProviderSelect = typeof protochatProviders.$inferSelect;
 
 /**
- * ProtoChat 模型列表
- * 存储ProtoChat供应商可用的模型及其与底层供应商的映射关系
+ * ProtoChat model list
+ * Stores available models for ProtoChat providers and their mapping to underlying providers
  */
 export const protochatModels = pgTable(
   'protochat_models',
   {
-    // ProtoChat模型ID，格式: 'protochat::gpt-4o'
+    // ProtoChat model ID, format: 'protochat::gpt-4o'
     id: varchar('id', { length: 200 }).primaryKey(),
-    // 原始模型ID，格式: 'openrouter::openai/gpt-4o'
+    // Original model ID, format: 'openrouter::openai/gpt-4o'
     originalId: varchar('original_id', { length: 200 }).notNull(),
-    // 原始供应商ID，如: 'openrouter', 'deepseek'
+    // Original provider ID, e.g. 'openrouter', 'deepseek'
     originalProvider: varchar('original_provider', { length: 64 }).notNull(),
     displayName: varchar('display_name', { length: 200 }).notNull(),
-    // 模型类型: 'chat', 'image', 'embedding'
+    // Model type: 'chat', 'image', 'embedding'
     type: varchar('type', { length: 20 }).notNull(),
-    // 后台是否启用（控制用户可见性）
+    // Whether enabled in backend (controls user visibility)
     enabled: boolean('enabled').default(false).notNull(),
 
-    // 模型能力: {functionCall, vision, reasoning, search, files, etc}
+    // Model capabilities: {functionCall, vision, reasoning, search, files, etc}
     capabilities: jsonb('capabilities'),
     contextTokens: integer('context_tokens'),
     maxOutput: integer('max_output'),
 
-    // 模型参数schema
+    // Model parameter schema
     parameters: jsonb('parameters'),
-    // 特殊设置
+    // Special settings
     settings: jsonb('settings'),
 
     createdAt: createdAt(),
@@ -104,28 +104,28 @@ export type ProtochatModelInsert = typeof protochatModels.$inferInsert;
 export type ProtochatModelSelect = typeof protochatModels.$inferSelect;
 
 /**
- * ProtoChat 模型定价
- * 存储每个模型的成本价和用户价
+ * ProtoChat model pricing
+ * Stores cost price and user price for each model
  */
 export const protochatModelPricing = pgTable(
   'protochat_model_pricing',
   {
     id: serial('id').primaryKey(),
-    // 关联protochat_models.id
+    // References protochat_models.id
     modelId: varchar('model_id', { length: 200 }).notNull(),
 
-    // 成本价（USD/百万tokens）
+    // Cost price (USD per million tokens)
     costInputPrice: decimal('cost_input_price', { precision: 15, scale: 4 }).notNull(),
     costOutputPrice: decimal('cost_output_price', { precision: 15, scale: 4 }).notNull(),
 
-    // 原始货币: 'USD', 'CNY'
+    // Original currency: 'USD', 'CNY'
     currency: varchar('currency', { length: 10 }).default('USD'),
-    // 定价来源: 'api', 'model_bank', 'manual'
+    // Pricing source: 'api', 'model_bank', 'manual'
     priceSource: varchar('price_source', { length: 50 }),
-    // 是否免费模型
+    // Whether it's a free model
     isFree: boolean('is_free').default(false),
 
-    // 最后同步时间
+    // Last sync time
     syncedAt: timestamptz('synced_at'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -141,13 +141,13 @@ export type ProtochatModelPricingInsert = typeof protochatModelPricing.$inferIns
 export type ProtochatModelPricingSelect = typeof protochatModelPricing.$inferSelect;
 
 /**
- * ProtoChat 全局设置
- * 存储定价系数等全局配置
+ * ProtoChat global settings
+ * Stores global configuration such as pricing multipliers
  */
 export const protochatSettings = pgTable('protochat_settings', {
-  // 设置项ID，如: 'pricing_multiplier'
+  // Setting item ID, e.g. 'pricing_multiplier'
   id: varchar('id', { length: 50 }).primaryKey(),
-  // 设置值
+  // Setting value
   value: decimal('value', { precision: 10, scale: 4 }).notNull(),
   description: varchar('description', { length: 500 }),
   updatedAt: updatedAt(),
@@ -157,8 +157,8 @@ export type ProtochatSettingsInsert = typeof protochatSettings.$inferInsert;
 export type ProtochatSettingsSelect = typeof protochatSettings.$inferSelect;
 
 /**
- * ProtoChat 使用日志
- * 记录用户使用ProtoChat模型的详细日志，用于分析和审计
+ * ProtoChat usage logs
+ * Records detailed logs of user ProtoChat model usage for analysis and auditing
  */
 export const protochatUsageLogs = pgTable(
   'protochat_usage_logs',
@@ -168,16 +168,16 @@ export const protochatUsageLogs = pgTable(
     modelId: varchar('model_id', { length: 200 }).notNull(),
     originalProvider: varchar('original_provider', { length: 64 }).notNull(),
 
-    // Token使用量
+    // Token usage
     inputTokens: integer('input_tokens').notNull(),
     outputTokens: integer('output_tokens').notNull(),
     totalTokens: integer('total_tokens').notNull(),
 
-    // 费用记录
+    // Cost record
     costPrice: decimal('cost_price', { precision: 15, scale: 4 }),
     userPrice: decimal('user_price', { precision: 15, scale: 4 }),
 
-    // 请求信息
+    // Request info
     requestId: varchar('request_id', { length: 100 }),
 
     createdAt: createdAt(),
