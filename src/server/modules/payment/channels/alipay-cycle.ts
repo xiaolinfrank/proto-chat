@@ -1,5 +1,5 @@
 /**
- * Alipay Cycle Pay Implementation (周期扣款)
+ * Alipay Cycle Pay Implementation (Recurring Deduction)
  * Docs: https://opendocs.alipay.com/open/20190319114403226822
  *
  * This implementation uses Alipay's Cycle Pay API for subscription payments:
@@ -20,7 +20,7 @@ interface AlipayConfig {
   notifyUrl: string;
   privateKey: string;
   sandbox?: boolean;
-  signNotifyUrl?: string; // 签约成功异步通知地址
+  signNotifyUrl?: string; // Async notification URL for successful contract signing
 }
 
 interface AgreementSignParams {
@@ -31,21 +31,21 @@ interface AgreementSignParams {
   periodType: 'DAY' | 'MONTH';
   planName: string;
   signScene: string;
-  singleAmount: number; // 单次扣款金额（分）
-  totalAmount?: number; // 周期内总扣款金额（分）
-  totalPayments?: number; // 总扣款次数
+  singleAmount: number; // Single deduction amount (in cents)
+  totalAmount?: number; // Total deduction amount within the cycle (in cents)
+  totalPayments?: number; // Total number of deductions
 }
 
 interface CreateSignPaymentParams {
   agreementParams: AgreementSignParams;
-  amount: number; // 首次支付金额（分）
+  amount: number; // First payment amount (in cents)
   orderNo: string;
   subject: string;
 }
 
 interface DeductPaymentParams {
   agreementNo: string;
-  amount: number; // 扣款金额（分）
+  amount: number; // Deduction amount (in cents)
   orderNo: string;
   subject: string;
 }
@@ -133,8 +133,8 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 创建支付并签约订单
-   * 返回用于生成二维码的字符串
+   * Create payment and sign agreement order
+   * Returns a string used to generate a QR code
    */
   async createSignPayment(params: CreateSignPaymentParams): Promise<{
     codeUrl?: string;
@@ -145,7 +145,7 @@ export class AlipayCycleChannel {
     try {
       const { orderNo, amount, subject, agreementParams } = params;
 
-      // 计算下次扣款时间（签约成功后的下一个周期）
+      // Calculate next deduction time (next cycle after successful signing)
       const executeTime = this.calculateNextDeductDate(
         agreementParams.periodType,
         agreementParams.period,
@@ -180,22 +180,22 @@ export class AlipayCycleChannel {
         total_amount: (amount / 100).toFixed(2),
       };
 
-      // 使用 sdkExecute 方式获取签名字符串（用于 App/小程序 唤起支付）
-      // 对于 Web 端扫码，我们需要用 alipay.trade.precreate 或页面跳转方式
-      // 这里使用 pageExecute 方式生成跳转 URL
+      // Use sdkExecute method to get the signed string (for App/Mini Program to invoke payment)
+      // For Web QR code scanning, we need to use alipay.trade.precreate or page redirect method
+      // Here we use the pageExecute method to generate a redirect URL
 
       const requestParams = this.buildCommonParams('alipay.trade.app.pay', bizContent);
       const signedParams = this.signParams(requestParams);
 
-      // 生成签名后的完整参数字符串（用于 App SDK 或生成二维码）
+      // Generate the complete signed parameter string (for App SDK or QR code generation)
       const orderStr = new URLSearchParams(signedParams).toString();
 
-      // 对于 Web 扫码场景，我们需要生成一个可以被扫码打开的 URL
-      // 支付宝提供的方式是通过 H5 页面中转
-      // 实际上，周期扣款的扫码签约需要使用 alipay.user.agreement.page.sign 接口
-      // 但由于我们需要支付+签约，这里使用 alipay.trade.app.pay 的方式
+      // For Web QR code scanning scenarios, we need to generate a URL that can be opened by scanning
+      // Alipay's approach is to relay through an H5 page
+      // In practice, QR code signing for recurring deductions requires the alipay.user.agreement.page.sign API
+      // However, since we need payment + signing, we use alipay.trade.app.pay here
 
-      // 生成二维码 URL（通过支付宝网关跳转）
+      // Generate QR code URL (via Alipay gateway redirect)
       const codeUrl = `${this.gatewayUrl}?${orderStr}`;
 
       return {
@@ -213,7 +213,7 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 使用协议号进行代扣
+   * Deduct payment using agreement number
    */
   async deductPayment(params: DeductPaymentParams): Promise<DeductResult> {
     try {
@@ -255,9 +255,9 @@ export class AlipayCycleChannel {
         };
       }
 
-      // 根据结果码处理
+      // Handle based on result code
       switch (tradeResponse.code) {
-        case '10000': { // 支付成功
+        case '10000': { // Payment successful
           return {
             channelOrderNo: tradeResponse.trade_no,
             orderNo,
@@ -265,8 +265,8 @@ export class AlipayCycleChannel {
           };
         }
 
-        case '10003': // 等待用户付款
-        case '20000': { // 未知异常
+        case '10003': // Waiting for user payment
+        case '20000': { // Unknown exception
           return {
             errorCode: tradeResponse.code,
             errorMessage: tradeResponse.sub_msg || tradeResponse.msg,
@@ -275,7 +275,7 @@ export class AlipayCycleChannel {
           };
         }
 
-        // case '40004' 支付失败 and other error cases
+        // case '40004' payment failed and other error cases
         default: {
           return {
             errorCode: tradeResponse.sub_code || tradeResponse.code,
@@ -296,7 +296,7 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 查询签约协议状态
+   * Query agreement status
    */
   async queryAgreement(agreementNo: string): Promise<AgreementQueryResult> {
     try {
@@ -323,7 +323,7 @@ export class AlipayCycleChannel {
       const queryResponse = result[responseKey];
 
       if (!queryResponse || queryResponse.code !== '10000') {
-        // 协议不存在或查询失败
+        // Agreement does not exist or query failed
         return {
           errorMessage: queryResponse?.sub_msg || queryResponse?.msg || 'Query failed',
           status: 'NOT_EXIST',
@@ -350,7 +350,7 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 解约协议
+   * Cancel agreement
    */
   async unsignAgreement(agreementNo: string): Promise<{ errorMessage?: string; success: boolean }> {
     try {
@@ -394,7 +394,7 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 解析签约异步通知
+   * Parse signing async notification
    */
   parseSignNotification(rawBody: string | Buffer): SignNotificationResult | null {
     try {
@@ -406,7 +406,7 @@ export class AlipayCycleChannel {
         data[key] = value;
       }
 
-      // 验证签名
+      // Verify signature
       const sign = data.sign;
       const signType = data.sign_type;
 
@@ -415,7 +415,7 @@ export class AlipayCycleChannel {
         return null;
       }
 
-      // 移除 sign 和 sign_type 进行验签
+      // Remove sign and sign_type for signature verification
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { sign: _sign, sign_type: _signType, ...paramsToVerify } = data;
       const signContent = this.buildSignContent(paramsToVerify);
@@ -425,7 +425,7 @@ export class AlipayCycleChannel {
         return null;
       }
 
-      // 检查通知类型
+      // Check notification type
       const notifyType = data.notify_type;
       if (notifyType !== 'dut_user_sign' && notifyType !== 'dut_user_unsign') {
         console.log('[AlipayCycle] Unknown notify type:', notifyType);
@@ -450,7 +450,7 @@ export class AlipayCycleChannel {
   }
 
   /**
-   * 计算下次扣款日期
+   * Calculate next deduction date
    */
   private calculateNextDeductDate(periodType: 'DAY' | 'MONTH', period: number): string {
     const now = new Date();
@@ -458,7 +458,7 @@ export class AlipayCycleChannel {
 
     if (periodType === 'MONTH') {
       nextDate.setMonth(nextDate.getMonth() + period);
-      // 确保日期不超过28日（避免某些月份没有29、30、31日）
+      // Ensure the date does not exceed the 28th (to avoid months without 29, 30, or 31 days)
       if (nextDate.getDate() > 28) {
         nextDate.setDate(28);
       }
@@ -466,7 +466,7 @@ export class AlipayCycleChannel {
       nextDate.setDate(nextDate.getDate() + period);
     }
 
-    // 格式化为 yyyy-MM-dd
+    // Format as yyyy-MM-dd
     return nextDate.toISOString().split('T')[0];
   }
 
