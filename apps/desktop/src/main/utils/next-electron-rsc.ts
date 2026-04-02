@@ -17,10 +17,10 @@ import { LOCAL_STORAGE_URL_PREFIX } from '@/const/dir';
 import { isDev } from '@/const/env';
 import { createLogger } from '@/utils/logger';
 
-// 创建日志记录器
+// Create logger
 const logger = createLogger('utils:next-electron-rsc');
 
-// 定义自定义处理器类型
+// Define custom handler type
 export type CustomRequestHandler = (request: Request) => Promise<Response | null | undefined>;
 
 export const createRequest = async ({
@@ -166,10 +166,10 @@ export function createHandler({
   assert(standaloneDir, 'standaloneDir is required');
   assert(protocol, 'protocol is required');
 
-  // 存储自定义请求处理器的数组
+  // Array storing custom request handlers
   const customHandlers: CustomRequestHandler[] = [];
 
-  // 注册自定义请求处理器的方法 - 在开发和生产环境中都提供此功能
+  // Method to register custom request handlers — available in both development and production
   function registerCustomHandler(handler: CustomRequestHandler) {
     logger.debug('Registering custom request handler');
     customHandlers.push(handler);
@@ -183,7 +183,7 @@ export function createHandler({
   }
 
   let registerProtocolHandle = false;
-  let interceptorCount = 0; // 追踪活跃的拦截器数量
+  let interceptorCount = 0; // Track the number of active interceptors
 
   protocol.registerSchemesAsPrivileged([
     {
@@ -197,7 +197,7 @@ export function createHandler({
   ]);
   logger.debug('Registered HTTP scheme as privileged');
 
-  // 初始化 Next.js 应用（仅在生产环境中使用）
+  // Initialize Next.js app (production only)
   let app: NextNodeServer | null = null;
   let handler: any = null;
   let preparePromise: Promise<void> | null = null;
@@ -224,22 +224,22 @@ export function createHandler({
     logger.debug('Starting in development mode');
   }
 
-  // 通用的请求处理函数 - 开发和生产环境共用
+  // Common request handler — shared between development and production
   const handleRequest = async (
     request: Request,
     session: Session,
     socket: Socket,
   ): Promise<Response> => {
     try {
-      // 检查是否是本地文件服务请求，如果是则跳过处理
+      // Check if this is a local file service request; if so, skip processing
       const url = new URL(request.url);
       if (url.pathname.startsWith(LOCAL_STORAGE_URL_PREFIX + '/')) {
         if (debug) logger.debug(`Skipping local file service request: ${request.url}`);
-        // 直接使用 fetch 转发请求到本地文件服务
+        // Forward directly to the local file service via fetch
         return fetch(request);
       }
 
-      // 先尝试使用自定义处理器处理请求
+      // First try to handle the request with custom handlers
       for (const customHandler of customHandlers) {
         try {
           const response = await customHandler(request);
@@ -249,23 +249,23 @@ export function createHandler({
           }
         } catch (error) {
           if (debug) logger.error(`Custom handler error: ${error}`);
-          // 继续尝试下一个处理器
+          // Continue to the next handler
         }
       }
 
-      // 创建 Node.js 请求对象
+      // Create Node.js request object
       const req = await createRequest({ request, session, socket });
-      // 创建可读取响应的 Response 对象
+      // Create a Response object that can read the response
       const res = new ReadableServerResponse(req);
 
       if (isDev) {
-        // 开发环境：转发请求到开发服务器
+        // Development: forward request to the dev server
         if (debug) logger.debug(`Forwarding request to dev server: ${request.url}`);
 
-        // 修改 URL 以指向开发服务器
+        // Rewrite URL to point at the dev server
         const devUrl = new URL(req.url, localhostUrl);
 
-        // 使用 node:http 模块发送请求到开发服务器
+        // Send request to the dev server using node:http
         const http = require('node:http');
         const devReq = http.request(
           {
@@ -276,42 +276,42 @@ export function createHandler({
             port: devUrl.port,
           },
           (devRes) => {
-            // 设置响应状态码和头部
+            // Set response status code and headers
             res.statusCode = devRes.statusCode;
             res.statusMessage = devRes.statusMessage;
 
-            // 复制响应头
+            // Copy response headers
             Object.keys(devRes.headers).forEach((key) => {
               res.setHeader(key, devRes.headers[key]);
             });
 
-            // 流式传输响应内容
+            // Stream response content
             devRes.pipe(res);
           },
         );
 
-        // 处理错误
+        // Handle errors
         devReq.on('error', (err) => {
           if (debug) logger.error(`Error forwarding request: ${err}`);
         });
 
-        // 传输请求体
+        // Pipe request body
         req.pipe(devReq);
       } else {
-        // 生产环境：使用 Next.js 处理请求
+        // Production: process request with Next.js handler
         if (debug) logger.debug(`Processing with Next.js handler: ${request.url}`);
 
-        // 确保 Next.js 已准备就绪
+        // Ensure Next.js is ready
         if (preparePromise) await preparePromise;
 
         const url = parse(req.url, true);
         handler(req, res, url);
       }
 
-      // 获取 Response 对象
+      // Get the Response object
       const response = await res.getResponse();
 
-      // 处理 cookies（两种环境通用处理）
+      // Handle cookies (common handling for both environments)
       try {
         const cookies = parseCookie(
           response.headers.getSetCookie().reduce((r, c) => {
@@ -323,16 +323,16 @@ export function createHandler({
           let expirationDate: number | undefined;
 
           if (cookie.expires) {
-            // expires 是 Date 对象，转换为秒级时间戳
+            // expires is a Date object; convert to a Unix timestamp in seconds
             expirationDate = Math.floor(cookie.expires.getTime() / 1000);
           } else if (cookie.maxAge) {
-            // maxAge 是秒数，计算过期时间戳
+            // maxAge is in seconds; calculate the expiration timestamp
             expirationDate = Math.floor(Date.now() / 1000) + cookie.maxAge;
           }
 
-          // 如果都没有，则为 session cookie，不设置 expirationDate
+          // If neither is present, this is a session cookie — leave expirationDate unset
 
-          // 检查是否已过期
+          // Check whether the cookie has already expired
           if (expirationDate && expirationDate < Math.floor(Date.now() / 1000)) {
             await session.cookies.remove(request.url, cookie.name);
             continue;
@@ -361,7 +361,7 @@ export function createHandler({
     }
   };
 
-  // 创建拦截器函数
+  // Create interceptor function
   const createInterceptor = ({ session }: { session: Session }) => {
     assert(session, 'Session is required');
     logger.debug(
@@ -369,7 +369,7 @@ export function createHandler({
     );
 
     const socket = new Socket();
-    interceptorCount++; // 增加拦截器计数
+    interceptorCount++; // Increment interceptor count
 
     const closeSocket = () => socket.end();
 
@@ -382,7 +382,7 @@ export function createHandler({
       );
       protocol.handle('http', async (request) => {
         if (!isDev) {
-          // 检查是否是本地文件服务请求，如果是则允许通过
+          // Check if this is a local file service request; if so, allow it through
           const isLocalhost = request.url.startsWith(localhostUrl);
 
           const url = new URL(request.url);
@@ -405,10 +405,10 @@ export function createHandler({
     logger.debug(`Active interceptors count: ${interceptorCount}`);
 
     return function stopIntercept() {
-      interceptorCount--; // 减少拦截器计数
+      interceptorCount--; // Decrement interceptor count
       logger.debug(`Stopping interceptor, remaining count: ${interceptorCount}`);
 
-      // 只有当没有活跃的拦截器时才取消注册协议处理器
+      // Only unregister the protocol handler when there are no active interceptors
       if (registerProtocolHandle && interceptorCount === 0) {
         logger.debug('Unregistering HTTP protocol handler (no active interceptors)');
         protocol.unhandle('http');
