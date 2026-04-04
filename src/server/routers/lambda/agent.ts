@@ -122,7 +122,7 @@ export const agentRouter = router({
 
       return [
         ...files
-          // 过滤掉所有图片
+          // Filter out all image files
           .filter((file) => !file.fileType.startsWith('image'))
           .map((file) => ({
             enabled: knowledge.files.some((item) => item.id === file.id),
