@@ -7,8 +7,8 @@ import { oidcEnv } from '@/envs/oidc';
 const log = debug('oidc-jwt');
 
 /**
- * 从环境变量中获取 JWKS
- * 该 JWKS 是一个包含 RS256 私钥的 JSON 对象
+ * Get JWKS from environment variables
+ * The JWKS is a JSON object containing the RS256 private key
  */
 export const getJWKS = (): object => {
   try {
@@ -20,15 +20,15 @@ export const getJWKS = (): object => {
       );
     }
 
-    // 尝试解析 JWKS JSON 字符串
+    // Parse the JWKS JSON string
     const jwks = JSON.parse(jwksString);
 
-    // 检查 JWKS 格式是否正确
+    // Verify the JWKS format is correct
     if (!jwks.keys || !Array.isArray(jwks.keys) || jwks.keys.length === 0) {
       throw new Error('JWKS 格式无效: 缺少或为空的 keys 数组');
     }
 
-    // 检查是否有 RS256 算法的密钥
+    // Check for an RS256 algorithm key
     const hasRS256Key = jwks.keys.some((key: any) => key.alg === 'RS256' && key.kty === 'RSA');
     if (!hasRS256Key) {
       throw new Error('JWKS 中没有找到 RS256 算法的 RSA 密钥');
@@ -60,8 +60,8 @@ const getVerificationKey = async () => {
       throw new Error('JWKS 中没有找到 RS256 算法的 RSA 密钥');
     }
 
-    // 创建一个只包含公钥组件的“纯净”JWK对象。
-    // RSA公钥的关键字段是 kty, n, e。其他如 kid, alg, use 也是公共的。
+    // Create a “clean” JWK object containing only the public key components.
+    // The essential fields for an RSA public key are kty, n, and e. Others such as kid, alg, and use are also public.
     const publicKeyJwk = {
       alg: privateRsaKey.alg,
       e: privateRsaKey.e,
@@ -71,12 +71,12 @@ const getVerificationKey = async () => {
       use: privateRsaKey.use,
     };
 
-    // 移除任何可能存在的 undefined 字段，保持对象干净
+    // Remove any undefined fields to keep the object clean
     Object.keys(publicKeyJwk).forEach(
       (key) => (publicKeyJwk as any)[key] === undefined && delete (publicKeyJwk as any)[key],
     );
 
-    // 现在，无论在哪个环境下，`importJWK` 都会将这个对象正确地识别为一个公钥。
+    // Now, in any environment, `importJWK` will correctly recognize this object as a public key.
     return await importJWK(publicKeyJwk, 'RS256');
   } catch (error) {
     log('获取 JWKS 公钥失败: %O', error);
@@ -85,26 +85,26 @@ const getVerificationKey = async () => {
 };
 
 /**
- * 验证 OIDC JWT Access Token
+ * Verify an OIDC JWT Access Token
  * @param token - JWT access token
- * @returns 解析后的 token payload 和用户信息
+ * @returns parsed token payload and user information
  */
 export const validateOIDCJWT = async (token: string) => {
   try {
     log('开始验证 OIDC JWT token');
 
-    // 获取公钥
+    // Get the public key
     const publicKey = await getVerificationKey();
 
-    // 验证 JWT
+    // Verify the JWT
     const { payload } = await jwtVerify(token, publicKey, {
       algorithms: ['RS256'],
-      // 可以添加其他验证选项，如 issuer、audience 等
+      // Additional verification options such as issuer and audience can be added
     });
 
     log('JWT 验证成功，payload: %O', payload);
 
-    // 提取用户信息
+    // Extract user information
     const userId = payload.sub;
     const clientId = payload.client_id;
     const aud = payload.aud;
