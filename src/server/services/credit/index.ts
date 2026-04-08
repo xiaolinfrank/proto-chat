@@ -15,11 +15,11 @@ export class CreditService {
     /**
      * Calculate credits needed for a chat completion
      *
-     * 统一的计费逻辑：所有供应商（包括 ProtoChat）都从 modelPricings 表查询用户价，
-     * 用户价已经预先计算好（成本价 × 系数），直接使用，无需运行时计算，提升性能
+     * Unified billing logic: all providers (including ProtoChat) query user prices from the modelPricings table,
+     * user prices are pre-calculated (cost price × multiplier), used directly without runtime calculation for better performance
      *
-     * @param model - Model ID (原始模型ID，如 'deepseek/deepseek-chat-v3.1')
-     * @param provider - Provider ID (如 'openai', 'protochat' 等)
+     * @param model - Model ID (original model ID, e.g. 'deepseek/deepseek-chat-v3.1')
+     * @param provider - Provider ID (e.g. 'openai', 'protochat', etc.)
      * @param inputTokens - Number of input tokens
      * @param outputTokens - Number of output tokens
      * @param isUserConfig - Whether user is using their own API key (if true, no charge)
@@ -37,7 +37,7 @@ export class CreditService {
             return 0;
         }
 
-        // 统一查询 modelPricings 表（包括 ProtoChat）
+        // Unified query to modelPricings table (including ProtoChat)
         const pricing = await this.db.query.modelPricings.findFirst({
             where: and(eq(modelPricings.model, model), eq(modelPricings.provider, provider)),
         });
@@ -47,7 +47,7 @@ export class CreditService {
             return 0;
         }
 
-        // 直接使用预先计算好的用户价，无需运行时计算（性能优化）
+        // Use pre-calculated user price directly, no runtime calculation needed (performance optimization)
         const userInputPrice = parseFloat(pricing.userInputPrice || '0');
         const userOutputPrice = parseFloat(pricing.userOutputPrice || '0');
         const perRequestPrice = parseFloat(pricing.perRequestPrice || '0');

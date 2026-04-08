@@ -35,6 +35,6 @@ export class DocService {
   }
 }
 
-// 很奇怪，需要加一行这个 `readdirSync` 才能在 vercel 部署后读到 md 文件
-// 否则没法正常找到 mdx 文件
+// Strangely, this `readdirSync` line is needed to read md files after deployment on Vercel
+// Otherwise, mdx files cannot be found correctly
 readdirSync(join(process.cwd(), 'docs'));
