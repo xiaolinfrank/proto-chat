@@ -52,7 +52,7 @@ export const aiModelRouter = router({
     .input(
       z.object({
         id: z.string(),
-        // TODO: 补齐校验 Schema
+        // TODO: Complete the validation Schema
         models: z.array(z.any()),
       }),
     )
