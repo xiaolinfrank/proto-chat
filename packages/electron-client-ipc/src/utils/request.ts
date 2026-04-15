@@ -1,7 +1,7 @@
 /**
- * 从请求体中获取数据
- * @param body - 请求体
- * @returns 转换后的请求体数据
+ * Get data from the request body
+ * @param body - Request body
+ * @returns Converted request body data
  */
 export const getRequestBody = async (
   // eslint-disable-next-line no-undef
