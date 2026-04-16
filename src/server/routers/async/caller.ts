@@ -40,7 +40,8 @@ export const createAsyncServerClient = async (userId: string, payload: ClientSec
 };
 
 /**
- * 用来推断 caller 类型辅助方法，但不实际调用 createAsyncCallerFactory，调用会报错：asyncRouter 没有初始化
+ * Helper method for inferring the caller type; does not actually invoke createAsyncCallerFactory,
+ * as calling it would throw an error because asyncRouter has not been initialized
  */
 const helperFunc = () => {
   const dummyCreateCaller = createAsyncCallerFactory(asyncRouter);
@@ -55,8 +56,8 @@ interface CreateCallerOptions {
 }
 
 /**
- * 创建 caller 的工厂方法，兼容 desktop server 和 remote server 环境
- * 使用方式统一成 caller.a.b() 的调用方式
+ * Factory method for creating a caller, compatible with both desktop server and remote server environments
+ * Unifies the call style to caller.a.b()
  */
 export const createAsyncCaller = async (
   options: CreateCallerOptions,
@@ -64,10 +65,10 @@ export const createAsyncCaller = async (
   const { userId, jwtPayload } = options;
 
   if (isDesktop) {
-    // Desktop 环境：使用 caller 直接同线程调用方法
+    // Desktop environment: use caller to invoke methods directly in the same thread
     const asyncContext = await createAsyncContextInner({
       jwtPayload,
-      // 参考 src/libs/trpc/async/asyncAuth.ts
+      // See src/libs/trpc/async/asyncAuth.ts
       secret: serverDBEnv.KEY_VAULTS_SECRET,
       userId,
     });
@@ -77,8 +78,8 @@ export const createAsyncCaller = async (
 
     return caller;
   }
-  // 非 Desktop 环境：使用 HTTP Client
-  // http client 调用方式是 client.a.b.mutate(), 我希望统一成 caller.a.b() 的调用方式
+  // Non-desktop environment: use HTTP Client
+  // The HTTP client call style is client.a.b.mutate(); this is unified to caller.a.b()
   else {
     const httpClient = await createAsyncServerClient(userId, jwtPayload);
     const createRecursiveProxy = (client: any, path: string[]): any => {
