@@ -10,7 +10,7 @@ export class ClerkAuth {
   }
 
   /**
-   * 从请求中获取认证信息和用户ID
+   * Get authentication info and user ID from request
    */
   getAuthFromRequest(request: NextRequest) {
     const clerkAuth = getAuth(request);
@@ -20,7 +20,7 @@ export class ClerkAuth {
   }
 
   /**
-   * 获取当前认证信息和用户ID
+   * Get current authentication info and user ID
    */
   async getAuth() {
     const clerkAuth = await auth();
@@ -40,12 +40,12 @@ export class ClerkAuth {
   }
 
   /**
-   * 根据环境变量映射用户ID
+   * Map user ID based on environment variables
    */
   private getMappedUserId(originalUserId: string | null): string | null {
     if (!originalUserId) return null;
 
-    // 只在开发环境下执行映射
+    // Only perform mapping in development environment
     if (
       process.env.NODE_ENV === 'development' &&
       this.devUserId &&
@@ -59,8 +59,8 @@ export class ClerkAuth {
   }
 
   /**
-   * 解析环境变量中的用户ID映射配置
-   * 格式: "dev=prod"
+   * Parse user ID mapping configuration from environment variables
+   * Format: "dev=prod"
    */
   private parseUserIdMapping(): void {
     const mappingStr = process.env.CLERK_DEV_IMPERSONATE_USER || '';

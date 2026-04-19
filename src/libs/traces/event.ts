@@ -11,7 +11,7 @@ import {
 } from '@/types/trace';
 
 /**
- * trace 事件得分
+ * Trace event score
  */
 export enum EventScore {
   DeleteAndRegenerate = -1,
