@@ -1,39 +1,39 @@
 /**
- * 显示托盘通知的参数
+ * Parameters for showing a tray notification
  */
 export interface ShowTrayNotificationParams {
   /**
-   * 通知内容
+   * Notification content
    */
   content: string;
 
   /**
-   * 图标类型
+   * Icon type
    */
   iconType?: 'info' | 'warning' | 'error' | 'none';
 
   /**
-   * 通知标题
+   * Notification title
    */
   title: string;
 }
 
 /**
- * 更新托盘图标的参数
+ * Parameters for updating the tray icon
  */
 export interface UpdateTrayIconParams {
   /**
-   * 图标路径（相对于资源目录）
+   * Icon path (relative to the resources directory)
    */
   iconPath: string;
 }
 
 /**
- * 更新托盘提示文本的参数
+ * Parameters for updating the tray tooltip text
  */
 export interface UpdateTrayTooltipParams {
   /**
-   * 提示文本
+   * Tooltip text
    */
   tooltip: string;
 }
