@@ -1,5 +1,5 @@
 /**
- * 将异步迭代器转换为 JSON 格式的 ReadableStream
+ * Converts an async iterator into a JSON-formatted ReadableStream
  */
 export declare const createModelPullStream: <T extends {
     completed?: number;

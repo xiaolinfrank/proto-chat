@@ -35,7 +35,7 @@ const transformVertexAIStream = (
   }
 
   if (
-    candidate && // 首先检查是否为 reasoning 内容 (thought: true)
+    candidate && // first check if this is reasoning content (thought: true)
     Array.isArray(candidate.content?.parts) &&
     candidate.content.parts.length > 0
   ) {
@@ -88,8 +88,8 @@ const transformVertexAIStream = (
         {
           data: {
             citations: groundingChunks?.map((chunk) => ({
-              // google 返回的 uri 是经过 google 自己处理过的 url，因此无法展现真实的 favicon
-              // 需要使用 title 作为替换
+              // the uri returned by google is a URL processed by google itself, so the real favicon cannot be shown
+              // use title as a replacement instead
               favicon: chunk.web?.title,
               title: chunk.web?.title,
               url: chunk.web?.uri,
