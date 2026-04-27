@@ -44,7 +44,7 @@ export const aiProviders = pgTable(
       .$defaultFn(() => ({}))
       .$type<AiProviderConfig>(),
 
-    // 定价同步配置
+    // Pricing sync configuration
     pricingSyncStrategy: varchar('pricing_sync_strategy', { length: 50 }),
     pricingApiUrl: varchar('pricing_api_url', { length: 500 }),
 
