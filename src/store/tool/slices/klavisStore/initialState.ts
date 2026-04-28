@@ -1,22 +1,22 @@
 import { KlavisServer } from './types';
 
 /**
- * Klavis Store 状态接口
+ * Klavis Store state interface
  *
  * NOTE: API Key is NOT stored in client-side state for security reasons.
  * It's only available on the server-side.
  */
 export interface KlavisStoreState {
-  /** 正在执行的工具调用 ID 集合 */
+  /** Set of tool call IDs currently being executed */
   executingToolIds: Set<string>;
-  /** 正在加载的服务器 ID 集合 */
+  /** Set of server IDs currently loading */
   loadingServerIds: Set<string>;
-  /** 已创建的 Klavis Server 列表 */
+  /** List of created Klavis Server instances */
   servers: KlavisServer[];
 }
 
 /**
- * Klavis Store 初始状态
+ * Klavis Store initial state
  */
 export const initialKlavisStoreState: KlavisStoreState = {
   executingToolIds: new Set(),
