@@ -156,7 +156,7 @@ export class AiInfraRepos {
       enabled:
         userProviders.some((provider) => provider.id === item.id && provider.enabled) ||
         this.providerConfigs[item.id]?.enabled ||
-        // 回退到 DEFAULT_MODEL_PROVIDER_LIST 中的 enabled 属性（用于 protochat 等特殊供应商）
+        // Fall back to the enabled property in DEFAULT_MODEL_PROVIDER_LIST (for special providers such as protochat)
         item.enabled,
       id: item.id,
       name: item.name,
@@ -271,7 +271,7 @@ export class AiInfraRepos {
       return allModels.some((model) => model.providerId === provider.id && model.type === 'chat');
     });
     const enabledImageAiProviders = enabledAiProviders.filter((provider) => {
-      // 只允许 protochat provider 提供图像模型，避免显示其他供应商的内置 image 模型
+      // Only allow the protochat provider to supply image models, to avoid showing built-in image models from other providers
       if (provider.id !== 'protochat') return false;
       return allModels.some((model) => model.providerId === provider.id && model.type === 'image');
     });
@@ -365,7 +365,7 @@ export class AiInfraRepos {
         .where(
           and(
             eq(protochatModels.enabled, true),
-            eq(protochatProviders.enabled, true), // ✅ 只返回启用的子供应商的模型
+            eq(protochatProviders.enabled, true), // ✅ Only return models from enabled sub-providers
           ),
         );
 
