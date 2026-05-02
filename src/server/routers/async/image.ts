@@ -140,7 +140,7 @@ const categorizeError = (
     };
   }
 
-  // FIXME: 401 的问题应该放到 agentRuntime 中处理会更好
+  // FIXME: The 401 issue would be better handled inside agentRuntime
   if (error.errorType === AgentRuntimeErrorType.InvalidProviderAPIKey || error?.status === 401) {
     return {
       errorMessage:
