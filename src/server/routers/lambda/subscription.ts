@@ -108,13 +108,13 @@ getCurrentPlan: authedSubscriptionProcedure.query(async ({ ctx }) => {
           durationMonths: user.durationMonths,
           features: plan[0].features,
           nextCreditGrantAt: user.nextCreditGrantAt,
-          paidAmount, // 实付金额（分）- 仅用于显示
+          paidAmount, // Actual paid amount (in cents) - for display only
           planExpiresAt: user.planExpiresAt,
           planId: user.planId,
           planName: plan[0].name,
           planSlug: user.currentPlan,
           planType: plan[0].type,
-          planValue, // 套餐价值（分）- 用于残值计算
+          planValue, // Plan value (in cents) - used for residual value calculation
           previousPlanName: user.previousPlanName,
           previousPlanSlug: user.previousPlanSlug,
           subscriptionType: user.subscriptionType || 'recurring',
